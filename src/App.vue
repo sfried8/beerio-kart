@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <kart-game />
   </div>
 </template>
 
 <script>
-  import HelloWorld from "./components/HelloWorld.vue";
+  import KartGame from "./components/KartGame.vue";
 
   export default {
     name: "app",
     components: {
-      HelloWorld
+      KartGame
     }
   };
 </script>
