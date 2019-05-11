@@ -40,9 +40,13 @@ export default class Player {
   totalPoints() {
     return this.points.amount() + this.currentRoundPoints.amount();
   }
-  addRacePoints(toAdd) {
-    for (var i = 0; i < toAdd; i++) {
-      this.currentRoundPoints.addRacePoints(1);
+  addRacePoints(place, lastPlace) {
+    if (place === lastPlace) {
+      this.currentRoundPoints.addLastPlacePoint(place);
+      this.checkForBonus();
+    }
+    if (place % 4 === 0) {
+      this.currentRoundPoints.addFourthPoint(place);
       this.checkForBonus();
     }
   }

@@ -1,7 +1,8 @@
 import * as Util from "./Util";
 const SOURCE_TYPE = {
-  RACE: "_RACE",
-  KANPAI: "_KANPAI"
+  LAST_PLACE: "_LAST_PLACE",
+  MULTIPLE_OF_4: "MULTIPLE_OF_4",
+  KANPAI: "KANPAI"
 };
 class Point {
   constructor(source, extraData) {
@@ -15,7 +16,7 @@ class Point {
 class PointGroup {
   constructor() {
     this.points = {
-      [SOURCE_TYPE.RACE]: [],
+      [SOURCE_TYPE.LAST_PLACE]: [],
       [SOURCE_TYPE.KANPAI]: []
     };
   }
@@ -41,8 +42,18 @@ class PointGroup {
         continue;
       }
       const pointString = `${len} point${len === 1 ? "" : "s"}`;
-      if (s === SOURCE_TYPE.RACE) {
-        strs.push(`${pointString} from the race`);
+      if (s === SOURCE_TYPE.LAST_PLACE) {
+        strs.push(
+          `${pointString} for coming in ${Util.addNumberEnding(
+            this.points[s][0].extraData
+          )} (i.e. last)`
+        );
+      } else if (s === SOURCE_TYPE.MULTIPLE_OF_4) {
+        strs.push(
+          `${pointString} for coming in ${Util.addNumberEnding(
+            this.points[s][0].extraData
+          )} (multiple of 4)`
+        );
       } else if (s === SOURCE_TYPE.KANPAI) {
         strs.push(
           `${pointString} because it's the ${Util.addNumberEnding(
@@ -50,7 +61,6 @@ class PointGroup {
           )} race`
         );
       } else {
-        console.log(s);
         strs.push(
           `${pointString} from ${s}'s ${Util.prettyPrintNumbers(
             this.points[s].map(p => p.extraData)
@@ -68,10 +78,11 @@ class PointGroup {
       this.points[s].push(...otherGroup.points[s]);
     }
   }
-  addRacePoints(quantity) {
-    for (let i = 0; i < quantity; i++) {
-      this.addPoint(new Point(SOURCE_TYPE.RACE));
-    }
+  addLastPlacePoint(place) {
+    this.addPoint(new Point(SOURCE_TYPE.LAST_PLACE, place));
+  }
+  addFourthPoint(place) {
+    this.addPoint(new Point(SOURCE_TYPE.MULTIPLE_OF_4, place));
   }
   addKanpaiPoint(roundNumber) {
     this.addPoint(new Point(SOURCE_TYPE.KANPAI, roundNumber));

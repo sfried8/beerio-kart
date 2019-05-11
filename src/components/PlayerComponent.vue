@@ -1,12 +1,8 @@
 <template>
-  <div
-    :style="{margin:'15px','user-select':'none', 'font-weight':'bolder','color':['black','darkred','red'][colorLevel]||'red'}"
-  >
+  <div :style="{margin:'15px','user-select':'none', 'font-weight':'bolder'}">
     {{name}} {{points.amount()+currentRoundPoints.amount()}}
     <div>
-      <span @click="$emit('update:pendingPoints', Math.max(pendingPoints-1,0))">-</span>
-      {{pendingPoints}}
-      <span @click="$emit('update:pendingPoints', pendingPoints+1)">+</span>
+      <div @click="showKeypad">{{placeString}}</div>
     </div>
     <div v-if="currentRoundPoints.amount()">
       This round: {{currentRoundPoints.amount()}}
@@ -18,10 +14,13 @@
     <div v-if="messagesExpanded">
       <div v-for="m in messages" :key="m">{{m}}</div>
     </div>
+    <!-- <keypad :show="showKeypad" @selected="n=>{$emit('update:pendingPoints', n);showKeypad=false;}"/> -->
   </div>
 </template>
 
 <script>
+import KeypadPrompt from "./KeypadPrompt";
+import { addNumberEnding } from "../Util";
 export default {
   props: {
     name: { type: String },
@@ -40,6 +39,18 @@ export default {
   watch: {
     messages() {
       this.messagesExpanded = false;
+    }
+  },
+  computed: {
+    placeString() {
+      return this.pendingPoints
+        ? addNumberEnding(this.pendingPoints)
+        : "<add placement>";
+    }
+  },
+  methods: {
+    showKeypad() {
+      KeypadPrompt().then(n => this.$emit("update:pendingPoints", n));
     }
   }
 };

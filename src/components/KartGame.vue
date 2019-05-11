@@ -8,7 +8,7 @@
       </div>
       <button @click="undo" v-if="roundNumber > 1">undo</button>
       <br>
-      <button @click="round">GO</button>
+      <button :disabled="players.some(p=>p.pendingPoints===0)" @click="round">GO</button>
       <br>
       <br>
       <br>
@@ -25,7 +25,7 @@
 
 <script>
 /* eslint-disable */
-
+import Keypad from "./KeypadComponent";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
 
@@ -38,7 +38,8 @@ function printScores(players) {
 import Player from "../Player.js";
 export default {
   components: {
-    PlayerComponent
+    PlayerComponent,
+    Keypad
   },
   name: "KartGame",
   data() {
@@ -72,13 +73,14 @@ export default {
     },
     round() {
       this.roundNumber += 1;
+      const lastPlace = Math.max(...this.players.map(p => p.pendingPoints));
       for (let p of this.players) {
         p.saveState();
         const addedPoints = p.pendingPoints;
         p.pendingPoints = 0;
         p.points.combineGroup(p.currentRoundPoints);
         p.currentRoundPoints.clear();
-        p.addRacePoints(addedPoints);
+        p.addRacePoints(addedPoints, lastPlace);
         if ((this.roundNumber - 1) % 4 === 0) {
           p.addKanpaiPoint(this.roundNumber - 1);
         }
