@@ -8,6 +8,7 @@ export default class Player {
             this.extraDict = [];
             this.messages = [];
             this.history = [];
+            this.colorLevel = 0;
         } else if (name1 && name1.name) {
             this.name = name1.name;
             this.points = name1.points;
@@ -16,6 +17,7 @@ export default class Player {
             this.extraDict = name1.extraDict;
             this.messages = name1.messages;
             this.history = name1.history;
+            this.colorLevel = name1.colorLevel;
         }
     }
     saveState() {

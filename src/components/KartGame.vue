@@ -142,6 +142,7 @@
           p.addPoints(addedPoints, "race", 0, this.players.length);
           if ((this.roundNumber - 1) % 4 == 0)
             p.addPoints(1, "round", this.roundNumber - 1, this.players.length);
+          p.colorLevel = p.extraDict.length;
         }
         while (true) {
           for (let p of this.players) {
