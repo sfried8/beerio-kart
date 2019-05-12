@@ -1,60 +1,79 @@
 <template>
-  <div :style="{margin:'15px','user-select':'none', 'font-weight':'bolder'}">
-    {{name}} {{points.amount()+currentRoundPoints.amount()}}
-    <div>
-      <div @click="showKeypad">{{placeString}}</div>
+  <div
+    class="playerComponent"
+    :style="{'border-left':'6px solid '+playerColor}"
+  >
+    <div class="playerName">{{name}}</div>
+    <div class="totalPoints">
+      {{points.amount()+currentRoundPoints.amount()}}
     </div>
     <div v-if="currentRoundPoints.amount()">
       This round: {{currentRoundPoints.amount()}}
-      <button
-        @mouseenter="messagesExpanded=true"
-        @mouseleave="messagesExpanded=false"
-      >?</button>
+      <button @click="messagesExpanded=!messagesExpanded">?</button>
     </div>
     <div v-if="messagesExpanded">
-      <div v-for="m in messages" :key="m">{{m}}</div>
+      <div
+        v-for="m in messages"
+        :key="m"
+        class="message"
+      >{{m}}</div>
     </div>
-    <!-- <keypad :show="showKeypad" @selected="n=>{$emit('update:pendingPoints', n);showKeypad=false;}"/> -->
   </div>
 </template>
 
 <script>
-import KeypadPrompt from "./KeypadPrompt";
-import { addNumberEnding } from "../Util";
-export default {
-  props: {
-    name: { type: String },
-    messages: { type: Array },
-    points: { type: Object },
-    currentRoundPoints: { type: Object },
-    pendingPoints: { type: Number },
-    extraDict: { type: Array },
-    colorLevel: { type: Number }
-  },
-  data() {
-    return {
-      messagesExpanded: false
-    };
-  },
-  watch: {
-    messages() {
-      this.messagesExpanded = false;
+  export default {
+    props: {
+      name: { type: String },
+      messages: { type: Array },
+      points: { type: Object },
+      currentRoundPoints: { type: Object },
+      pendingPoints: { type: Number },
+      extraDict: { type: Array },
+      playerColor: { type: String }
+    },
+    data() {
+      return {
+        messagesExpanded: false
+      };
+    },
+    watch: {
+      messages() {
+        this.messagesExpanded = false;
+      }
     }
-  },
-  computed: {
-    placeString() {
-      return this.pendingPoints
-        ? addNumberEnding(this.pendingPoints)
-        : "<add placement>";
-    }
-  },
-  methods: {
-    showKeypad() {
-      KeypadPrompt().then(n => this.$emit("update:pendingPoints", n));
-    }
-  }
-};
+  };
 </script>
 
 <style scoped>
+  .playerName {
+    grid-area: name;
+    font-size: 24px;
+  }
+  .totalPoints {
+    grid-area: total;
+    font-size: 24px;
+  }
+  .playerComponent {
+    margin: 15px;
+    min-height: 10vh;
+    user-select: none;
+    padding: 10px;
+    background: white;
+    box-shadow: #ddd 2px 2px 10px;
+    font-weight: bolder;
+    display: grid;
+    grid-template-columns: 1fr 6fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "name result"
+      "total result";
+  }
+  .message {
+    font-weight: normal;
+    font-size: small;
+  }
+  .roundResults {
+    grid-area: "result";
+  }
 </style>

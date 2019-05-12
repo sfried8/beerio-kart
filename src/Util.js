@@ -42,3 +42,7 @@ export function prettyPrintNumbers(list) {
 export function pluralize(word, count) {
     return word + (count !== 1 ? "s" : "");
 }
+
+export function uniquify(arr) {
+    return arr.filter((x, i) => arr.indexOf(x) === i);
+}
