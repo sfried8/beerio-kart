@@ -1,4 +1,4 @@
-import * as Util from "./Util";
+import * as Util from "../Util";
 type PointGroupMap = Record<string, Point[]>;
 const SOURCE_TYPE = {
     LAST_PLACE: "_L",

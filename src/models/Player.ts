@@ -5,7 +5,12 @@ type HistoryItem = {
     currentRoundPoints: PointGroup;
     extraDict: number[];
 };
+export interface IPlayer {
+    id?: number;
+    name: string;
+}
 export default class Player {
+    public id?: number;
     public name: string;
     public points: PointGroup;
     public currentRoundPoints: PointGroup;
@@ -15,26 +20,15 @@ export default class Player {
     public history: HistoryItem[];
     public numPlayers: number = 0;
     public playerColor: string | undefined;
-    constructor(name1: string | Player) {
-        if (typeof name1 === "string") {
-            this.name = name1;
-            this.points = new PointGroup();
-            this.currentRoundPoints = new PointGroup();
-            this.pendingPoints = 0;
-            this.extraDict = [];
-            this.messages = [];
-            this.history = [];
-        } else {
-            this.name = name1.name;
-            this.points = PointGroup.cloneOf(name1.points);
-            this.currentRoundPoints = PointGroup.cloneOf(
-                name1.currentRoundPoints
-            );
-            this.pendingPoints = name1.pendingPoints;
-            this.extraDict = name1.extraDict;
-            this.messages = name1.messages;
-            this.history = name1.history;
-        }
+    constructor(playerInfo: IPlayer) {
+        this.id = playerInfo.id;
+        this.name = playerInfo.name;
+        this.points = new PointGroup();
+        this.currentRoundPoints = new PointGroup();
+        this.pendingPoints = 0;
+        this.extraDict = [];
+        this.messages = [];
+        this.history = [];
     }
     saveState() {
         this.history.push({

@@ -31,11 +31,11 @@
             </div>
             <input
                 type="text"
-                @keypress.enter="addPlayer"
+                @keypress.enter="addPlayer()"
                 v-model="pendingName"
                 placeholder="Name"
             />
-            <button @click="addPlayer">Add</button>
+            <button @click="addPlayer()">Add</button>
             <div
                 class="recent-name-container"
                 v-if="availableRecentNames.length"
@@ -43,14 +43,11 @@
                 Recent:
                 <div
                     v-for="n in availableRecentNames"
-                    :key="n"
-                    @click="
-                        pendingName = n;
-                        addPlayer();
-                    "
+                    :key="n.id"
+                    @click="addPlayer(n)"
                     class="recent-name"
                 >
-                    {{ n }}
+                    {{ n.name }}
                 </div>
             </div>
             <button v-if="players.length" @click="startGame">start</button>
@@ -63,14 +60,14 @@
 import { KeypadPrompt } from "./KeypadPrompt";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
-
+import * as DatabaseManager from "../DatabaseManager";
 function printScores(players: Player[]) {
     players.forEach(p => {
         p.messages = p.currentRoundPoints.displayStrings();
     });
 }
 
-import Player from "../Player";
+import Player, { IPlayer } from "../models/Player";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
@@ -81,53 +78,54 @@ export default class KartGame extends Vue {
     players: Player[] = [];
     roundNumber: number = -1;
     pendingName: string = "";
-    recentNames: string[] = [];
+    playersFromDatabase: IPlayer[] = [];
 
-    mounted() {
+    async mounted() {
         const existingGameStr = window.localStorage.getItem("game");
-        if (existingGameStr) {
-            const existingGame = JSON.parse(existingGameStr);
-            if (
-                existingGame &&
-                existingGame.players &&
-                existingGame.roundNumber
-            ) {
-                this.roundNumber = existingGame.roundNumber;
+        await DatabaseManager.init();
+        // if (existingGameStr) {
+        //     const existingGame = JSON.parse(existingGameStr);
+        //     if (
+        //         existingGame &&
+        //         existingGame.players &&
+        //         existingGame.roundNumber
+        //     ) {
+        //         this.roundNumber = existingGame.roundNumber;
 
-                existingGame.players.forEach((p: Player, i: number) => {
-                    const player = new Player(p);
-                    this.players.push(player);
-                    player.playerColor = [
-                        "#fae451",
-                        "#6cecfd",
-                        "#fe727d",
-                        "#3ee413"
-                    ][i];
-                });
-                printScores(this.players);
-            }
-        }
-        this.recentNames = JSON.parse(
-            window.localStorage.getItem("recentNames") || "[]"
-        );
+        //         existingGame.players.forEach((p: Player, i: number) => {
+        //             const player = new Player(p);
+        //             this.players.push(player);
+        //             player.playerColor = [
+        //                 "#fae451",
+        //                 "#6cecfd",
+        //                 "#fe727d",
+        //                 "#3ee413"
+        //             ][i];
+        //         });
+        //         printScores(this.players);
+        //     }
+        // }
+
+        // this.playersFromDatabase = JSON.parse(
+        //     window.localStorage.getItem("playersFromDatabase") || "[]"
+        // );
+        this.playersFromDatabase = await DatabaseManager.getPlayers();
     }
     startGame() {
         this.roundNumber = 0;
         this.players.forEach((p, i) => {
-            this.recentNames.unshift(p.name);
             p.playerColor = ["#fae451", "#6cecfd", "#fe727d", "#3ee413"][i];
         });
-        this.recentNames = Util.uniquify(this.recentNames);
-        window.localStorage.setItem(
-            "recentNames",
-            JSON.stringify(this.recentNames)
-        );
     }
-    addPlayer() {
-        if (!this.pendingName) {
-            return;
+    async addPlayer(existingPlayer?: IPlayer) {
+        if (!existingPlayer) {
+            if (!this.pendingName) {
+                return;
+            }
+            const id = await DatabaseManager.addPlayer(this.pendingName);
+            existingPlayer = { name: this.pendingName, id };
         }
-        this.players.push(new Player(this.pendingName));
+        this.players.push(new Player(existingPlayer));
         this.pendingName = "";
     }
     round() {
@@ -197,8 +195,8 @@ export default class KartGame extends Vue {
         prom = prom.then((_: any) => this.round());
     }
     get availableRecentNames() {
-        return this.recentNames.filter(
-            n => !this.players.some(p => p.name === n)
+        return this.playersFromDatabase.filter(
+            n => !this.players.some(p => p.id === n.id)
         );
     }
     get chartData() {
