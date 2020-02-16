@@ -1,23 +1,16 @@
 import { Scatter, mixins } from "vue-chartjs";
-import Chart from "chart.js";
-import * as ChartAnnotation from "chartjs-plugin-annotation";
-
+import Vue from "vue";
 const { reactiveProp } = mixins;
-export default {
+export default Vue.extend({
     extends: Scatter,
     mixins: [reactiveProp],
-    plugins: [ChartAnnotation],
     mounted() {
-        // let caPlugin = ChartAnnotation;
-        // caPlugin["id"] = "annotation";
-        // Chart.plugins.register(caPlugin);
-        Chart.plugins.register(ChartAnnotation);
+        // @ts-ignore
         this.renderChart(this.chartData, this.options);
     },
     data() {
         return {
             options: {
-                plugins: [ChartAnnotation],
                 //Chart.js options
                 scales: {
                     yAxes: [
@@ -49,7 +42,8 @@ export default {
                 legend: {
                     display: true,
                     labels: {
-                        filter: item => !item.text.includes("remove")
+                        filter: (item: { text: string }) =>
+                            !item.text.includes("remove")
                     }
                 },
                 responsive: true,
@@ -57,4 +51,4 @@ export default {
             }
         };
     }
-};
+});

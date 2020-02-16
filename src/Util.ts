@@ -1,4 +1,4 @@
-export function addNumberEnding(num) {
+export function addNumberEnding(num: number) {
     if (!num) {
         return "";
     }
@@ -16,7 +16,7 @@ export function addNumberEnding(num) {
             return num + "th";
     }
 }
-export function prettyPrintList(list) {
+export function prettyPrintList(list: any[]) {
     if (!list || list.length === 0) {
         return "";
     } else if (list.length === 1) {
@@ -32,22 +32,19 @@ export function prettyPrintList(list) {
     }
 }
 
-export function prettyPrintNumbers(list) {
-    for (var i = 0; i < list.length; i++) {
-        list[i] = addNumberEnding(list[i]);
-    }
-    return prettyPrintList(list);
+export function prettyPrintNumbers(list: number[]) {
+    return prettyPrintList(list.map(addNumberEnding));
 }
 
-export function pluralize(word, count) {
+export function pluralize(word: string, count: number) {
     return word + (count !== 1 ? "s" : "");
 }
 
-export function uniquify(arr) {
+export function uniquify(arr: any[]) {
     return arr.filter((x, i) => arr.indexOf(x) === i);
 }
 
-export function average(arr) {
+export function average(arr: number[]) {
     if (!arr || arr.length === 0) {
         return 0;
     }

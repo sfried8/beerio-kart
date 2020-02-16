@@ -1,30 +1,28 @@
 <template>
-  <div id="app">
-    <kart-game />
-  </div>
+    <div id="app">
+        <kart-game />
+    </div>
 </template>
 
-<script>
-  import KartGame from "./components/KartGame.vue";
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import KartGame from "./components/KartGame.vue";
 
-  export default {
-    name: "app",
+@Component({
     components: {
-      KartGame
+        KartGame
     }
-  };
+})
+export default class App extends Vue {}
 </script>
 
 <style>
-  body {
-    background: #fafafa;
-  }
-  #app {
-    font-family: "Roboto", Helvetica, Arial, sans-serif;
+#app {
+    font-family: "Avenir", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 20px;
-  }
+    margin-top: 60px;
+}
 </style>

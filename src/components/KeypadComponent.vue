@@ -15,12 +15,13 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-    props: {
-        title: { type: String }
-    }
-};
+<script lang="ts">
+import { Component, Prop, Vue } from "vue-property-decorator";
+
+@Component
+export default class KeypadComponent extends Vue {
+    @Prop() private title!: string;
+}
 </script>
 
 <style>
