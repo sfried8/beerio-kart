@@ -46,3 +46,10 @@ export function pluralize(word, count) {
 export function uniquify(arr) {
     return arr.filter((x, i) => arr.indexOf(x) === i);
 }
+
+export function average(arr) {
+    if (!arr || arr.length === 0) {
+        return 0;
+    }
+    return arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
+}

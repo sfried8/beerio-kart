@@ -1,38 +1,38 @@
 <template>
-  <div class="overlay">
-    <h1 style="color:white">
-      {{title}}
-    </h1>
-    <div class="keypad">
-      <div
-        class="keypad-button"
-        :key="x"
-        v-for="x in 12"
-        @click="$emit('selected',x);"
-      >
-        <span>{{x}}</span>
-      </div>
+    <div class="overlay">
+        <h1 style="color:white">
+            {{ title }}
+        </h1>
+        <div class="keypad">
+            <div
+                class="keypad-button"
+                :key="x"
+                v-for="x in 12"
+                @click="$emit('selected', x)"
+            >
+                <span>{{ x }}</span>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 <script>
-  export default {
+export default {
     props: {
-      title: { type: String }
+        title: { type: String }
     }
-  };
+};
 </script>
 
 <style>
-  .overlay {
+.overlay {
     position: fixed;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.75);
-  }
-  .keypad {
+}
+.keypad {
     position: absolute;
     left: 25%;
     top: 25%;
@@ -43,12 +43,15 @@
     grid-template-rows: repeat(4, 1fr);
     column-gap: 4%;
     row-gap: 4%;
-  }
-  .keypad-button {
+}
+.keypad-button {
     background-color: lightblue;
     border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 8px 12px rgba(255, 255, 255, 0.3),
+        inset 0 -8px 12px rgba(0, 0, 0, 0.3), 0 4px 4px rgba(0, 0, 0, 0.5);
+}
 </style>

@@ -23,6 +23,7 @@ export default class Player {
     }
     saveState() {
         this.history.push({
+            place: this.pendingPoints,
             points: this.points.clone(),
             currentRoundPoints: this.currentRoundPoints.clone(),
             extraDict: [...this.extraDict]
