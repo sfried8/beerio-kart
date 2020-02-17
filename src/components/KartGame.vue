@@ -164,37 +164,36 @@ export default class KartGame extends Vue {
     }
     get chartData() {
         const trendlines: any[] = [];
-        // this.players.forEach(p => {
-        //     const playerAverages: number[][] = [];
-        //     p.history.forEach(h => {
-        //         const numPoints = [
-        //             ...Object.values(h.points.points),
-        //             ...Object.values(h.currentRoundPoints.points)
-        //         ].reduce((acc, cur) => acc + cur.length, 0);
-        //         if (!playerAverages[numPoints]) {
-        //             playerAverages[numPoints] = [];
-        //         }
-        //         playerAverages[numPoints].push(h.place);
-        //     });
-        //     const playerTrendlines = [];
+        if (!this.game) {
+            return { datasets: [] };
+        }
+        this.game.datasets.forEach((d, i) => {
+            const playerAverages: number[][] = [];
+            d.forEach(h => {
+                if (!playerAverages[h.x]) {
+                    playerAverages[h.x] = [];
+                }
+                playerAverages[h.x].push(h.y);
+            });
+            const playerTrendlines = [];
 
-        //     for (let i = 0; i < playerAverages.length; i++) {
-        //         if (i in playerAverages) {
-        //             playerTrendlines.push({
-        //                 x: i,
-        //                 y: Util.average(playerAverages[i])
-        //             });
-        //         }
-        //     }
-        //     trendlines.push({
-        //         label: "remove",
-        //         data: playerTrendlines,
-        //         backgroundColor: p.playerColor,
-        //         borderColor: p.playerColor,
-        //         fill: false,
-        //         type: "line"
-        //     });
-        // });
+            for (let i = 0; i < playerAverages.length; i++) {
+                if (i in playerAverages) {
+                    playerTrendlines.push({
+                        x: i,
+                        y: Util.average(playerAverages[i])
+                    });
+                }
+            }
+            trendlines.push({
+                label: "remove",
+                data: playerTrendlines,
+                backgroundColor: this.players[i].playerColor,
+                borderColor: this.players[i].playerColor,
+                fill: false,
+                type: "line"
+            });
+        });
         return {
             datasets: [
                 ...this.players.map((p, i) => ({
@@ -205,31 +204,6 @@ export default class KartGame extends Vue {
                 })),
                 ...trendlines
             ]
-        };
-    }
-    get options() {
-        return {
-            // responsive: true,
-            scales: {
-                yAxes: [
-                    {
-                        ticks: {
-                            max: 12,
-                            min: 1,
-                            stepSize: 1
-                        }
-                    }
-                ],
-                xAxes: [
-                    {
-                        ticks: {
-                            max: 1,
-                            min: 12,
-                            stepSize: 1
-                        }
-                    }
-                ]
-            }
         };
     }
 }
