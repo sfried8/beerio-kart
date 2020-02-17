@@ -81,7 +81,7 @@ function printScores(players: Player[]) {
     });
 }
 
-import Player from "../Player";
+import Player from "../models/Player";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
