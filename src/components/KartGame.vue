@@ -82,6 +82,7 @@ function printScores(players: Player[]) {
 }
 
 import Player from "../models/Player";
+import Game from "../models/Game";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
@@ -91,7 +92,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class KartGame extends Vue {
     players: Player[] = [];
     numRaces: number = 8;
-    roundNumber: number = -1;
+    game: Game | null = null;
     pendingName: string = "";
     recentNames: string[] = [];
 
@@ -102,21 +103,19 @@ export default class KartGame extends Vue {
             if (
                 existingGame &&
                 existingGame.players &&
-                existingGame.roundNumber
+                existingGame.history &&
+                existingGame.history.length
             ) {
-                this.roundNumber = existingGame.roundNumber;
                 this.numRaces = existingGame.numRaces;
-                existingGame.players.forEach((p: Player, i: number) => {
+                existingGame.players.forEach((p: string, i: number) => {
                     const player = new Player(p);
                     this.players.push(player);
-                    player.playerColor = [
-                        "#fae451",
-                        "#6cecfd",
-                        "#fe727d",
-                        "#3ee413"
-                    ][i];
                 });
-                printScores(this.players);
+                this.game = new Game(
+                    this.players,
+                    this.numRaces,
+                    existingGame.history
+                );
             }
         }
         this.recentNames = JSON.parse(
@@ -124,103 +123,39 @@ export default class KartGame extends Vue {
         );
     }
     startGame() {
-        this.roundNumber = 0;
-        this.players.forEach((p, i) => {
-            this.recentNames.unshift(p.name);
-            p.playerColor = ["#fae451", "#6cecfd", "#fe727d", "#3ee413"][i];
-        });
+        this.game = new Game(this.players, this.numRaces);
         this.recentNames = Util.uniquify(this.recentNames);
         window.localStorage.setItem(
             "recentNames",
             JSON.stringify(this.recentNames)
         );
+        this.game.startGame();
     }
     addPlayer() {
         if (!this.pendingName) {
             return;
         }
         this.players.push(new Player(this.pendingName));
+        this.recentNames.push(this.pendingName);
         this.pendingName = "";
     }
-    round() {
-        this.players.forEach(p => (p.numPlayers = this.players.length));
-        this.roundNumber += 1;
-        const lastPlace = Math.max(...this.players.map(p => p.pendingPoints));
-        for (let p of this.players) {
-            p.saveState();
-            const addedPoints = p.pendingPoints;
-            p.pendingPoints = 0;
-            p.points.combineGroup(p.currentRoundPoints);
-            p.currentRoundPoints.clear();
-            p.addRacePoints(addedPoints, lastPlace);
-            if (this.kanpaiPoints.includes(this.roundNumber)) {
-                p.addKanpaiPoint(this.roundNumber);
-            }
-        }
-        while (true) {
-            for (let p of this.players) {
-                const opponents = this.players.filter(x => x !== p);
-
-                while (p.extraDict.length) {
-                    const extraPoint = p.extraDict.shift();
-                    if (extraPoint) {
-                        opponents.forEach(o => {
-                            o.addBonusPoint(p.name, extraPoint);
-                        });
-                    }
-                }
-            }
-
-            if (!this.players.some(x => x.extraDict.length > 0)) {
-                printScores(this.players);
-                this.saveGame();
-                return;
-            }
-        }
-    }
     undo() {
-        this.roundNumber -= 1;
-        for (let p of this.players) {
-            p.undo();
+        if (this.game) {
+            this.game.undo();
         }
-        printScores(this.players);
-    }
-    saveGame() {
-        window.localStorage.setItem(
-            "game",
-            JSON.stringify({
-                numRaces: this.numRaces,
-                roundNumber: this.roundNumber,
-                players: this.players.map(({ messages, ...p }) => p)
-            })
-        );
     }
     newGame() {
-        this.roundNumber = -1;
+        this.game = null;
         this.pendingName = "";
         this.players = [];
     }
     promptAll() {
-        let prom: any = Promise.resolve();
-        this.players.forEach(p => {
-            prom = prom
-                .then((_: any) => KeypadPrompt(p.name))
-                .then((val: number) => (p.pendingPoints = val));
-        });
-        prom = prom.then((_: any) => this.round());
-    }
-    get kanpaiPoints() {
-        if (+this.numRaces <= 4) {
-            return [+this.numRaces];
-        } else if (+this.numRaces <= 6) {
-            return [3, +this.numRaces];
-        } else {
-            const kp = [];
-            for (let n = 4; n <= +this.numRaces; n += 4) {
-                kp.push(n);
-            }
-            return kp;
+        if (this.game) {
+            this.game.promptAll();
         }
+    }
+    get roundNumber() {
+        return this.game ? this.game.roundNumber : -1;
     }
     get availableRecentNames() {
         return this.recentNames.filter(
@@ -229,48 +164,42 @@ export default class KartGame extends Vue {
     }
     get chartData() {
         const trendlines: any[] = [];
-        this.players.forEach(p => {
-            const playerAverages: number[][] = [];
-            p.history.forEach(h => {
-                const numPoints = [
-                    ...Object.values(h.points.points),
-                    ...Object.values(h.currentRoundPoints.points)
-                ].reduce((acc, cur) => acc + cur.length, 0);
-                if (!playerAverages[numPoints]) {
-                    playerAverages[numPoints] = [];
-                }
-                playerAverages[numPoints].push(h.place);
-            });
-            const playerTrendlines = [];
+        // this.players.forEach(p => {
+        //     const playerAverages: number[][] = [];
+        //     p.history.forEach(h => {
+        //         const numPoints = [
+        //             ...Object.values(h.points.points),
+        //             ...Object.values(h.currentRoundPoints.points)
+        //         ].reduce((acc, cur) => acc + cur.length, 0);
+        //         if (!playerAverages[numPoints]) {
+        //             playerAverages[numPoints] = [];
+        //         }
+        //         playerAverages[numPoints].push(h.place);
+        //     });
+        //     const playerTrendlines = [];
 
-            for (let i = 0; i < playerAverages.length; i++) {
-                if (i in playerAverages) {
-                    playerTrendlines.push({
-                        x: i,
-                        y: Util.average(playerAverages[i])
-                    });
-                }
-            }
-            trendlines.push({
-                label: "remove",
-                data: playerTrendlines,
-                backgroundColor: p.playerColor,
-                borderColor: p.playerColor,
-                fill: false,
-                type: "line"
-            });
-        });
+        //     for (let i = 0; i < playerAverages.length; i++) {
+        //         if (i in playerAverages) {
+        //             playerTrendlines.push({
+        //                 x: i,
+        //                 y: Util.average(playerAverages[i])
+        //             });
+        //         }
+        //     }
+        //     trendlines.push({
+        //         label: "remove",
+        //         data: playerTrendlines,
+        //         backgroundColor: p.playerColor,
+        //         borderColor: p.playerColor,
+        //         fill: false,
+        //         type: "line"
+        //     });
+        // });
         return {
             datasets: [
-                ...this.players.map(p => ({
+                ...this.players.map((p, i) => ({
                     label: p.name,
-                    data: p.history.map(h => ({
-                        x: [
-                            ...Object.values(h.points.points),
-                            ...Object.values(h.currentRoundPoints.points)
-                        ].reduce((acc, cur) => acc + cur.length, 0),
-                        y: h.place
-                    })),
+                    data: this.game ? this.game.datasets[i] : [],
                     backgroundColor: p.playerColor,
                     pointRadius: 6
                 })),
