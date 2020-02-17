@@ -50,3 +50,14 @@ export function average(arr: number[]) {
     }
     return arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
 }
+
+export function kartScore(places: number[]) {
+    return places.reduce((acc, cur) => {
+        if (cur === 1) {
+            return acc + 15;
+        } else if (cur === 2) {
+            return acc + 12;
+        }
+        return acc + 13 - cur;
+    }, 0);
+}

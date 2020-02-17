@@ -3,8 +3,12 @@
         <div v-if="roundNumber >= 0">
             <div>Round {{ roundNumber }}</div>
 
-            <div v-for="player in players" :key="player.name">
-                <player-component v-bind.sync="player"></player-component>
+            <div class="player-component-container">
+                <player-component
+                    v-for="player in players"
+                    :key="player.name"
+                    v-bind.sync="player"
+                ></player-component>
             </div>
 
             <div class="button-panel">
@@ -12,7 +16,11 @@
                     undo
                 </button>
 
-                <button @click="promptAll" class="next">
+                <button
+                    @click="promptAll"
+                    v-if="roundNumber < numRaces"
+                    class="next"
+                >
                     Enter race {{ roundNumber + 1 }} results
                 </button>
                 <button @click="newGame" class="newgame">New Game</button>
@@ -53,7 +61,10 @@
                     {{ n }}
                 </div>
             </div>
-            <button v-if="players.length" @click="startGame">start</button>
+            <div>
+                <input v-model="numRaces" />
+                <button v-if="players.length" @click="startGame">start</button>
+            </div>
         </div>
     </div>
 </template>
@@ -79,6 +90,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 })
 export default class KartGame extends Vue {
     players: Player[] = [];
+    numRaces: number = 8;
     roundNumber: number = -1;
     pendingName: string = "";
     recentNames: string[] = [];
@@ -93,7 +105,7 @@ export default class KartGame extends Vue {
                 existingGame.roundNumber
             ) {
                 this.roundNumber = existingGame.roundNumber;
-
+                this.numRaces = existingGame.numRaces;
                 existingGame.players.forEach((p: Player, i: number) => {
                     const player = new Player(p);
                     this.players.push(player);
@@ -141,7 +153,7 @@ export default class KartGame extends Vue {
             p.points.combineGroup(p.currentRoundPoints);
             p.currentRoundPoints.clear();
             p.addRacePoints(addedPoints, lastPlace);
-            if (this.roundNumber % 4 === 0) {
+            if (this.kanpaiPoints.includes(this.roundNumber)) {
                 p.addKanpaiPoint(this.roundNumber);
             }
         }
@@ -177,6 +189,7 @@ export default class KartGame extends Vue {
         window.localStorage.setItem(
             "game",
             JSON.stringify({
+                numRaces: this.numRaces,
                 roundNumber: this.roundNumber,
                 players: this.players.map(({ messages, ...p }) => p)
             })
@@ -195,6 +208,19 @@ export default class KartGame extends Vue {
                 .then((val: number) => (p.pendingPoints = val));
         });
         prom = prom.then((_: any) => this.round());
+    }
+    get kanpaiPoints() {
+        if (+this.numRaces <= 4) {
+            return [+this.numRaces];
+        } else if (+this.numRaces <= 6) {
+            return [3, +this.numRaces];
+        } else {
+            const kp = [];
+            for (let n = 4; n <= +this.numRaces; n += 4) {
+                kp.push(n);
+            }
+            return kp;
+        }
     }
     get availableRecentNames() {
         return this.recentNames.filter(
@@ -310,5 +336,10 @@ export default class KartGame extends Vue {
     border: 1px #dddddd solid;
     border-radius: 1vh;
     width: 15vw;
+}
+.player-component-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 </style>
