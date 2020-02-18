@@ -17,6 +17,7 @@ export default class Game {
         public history: number[][] = []
     ) {
         this.raceResults = [];
+        this.datasets = players.map(p => []);
         if (this.history.length) {
             this.repopulateHistory();
         }
@@ -30,6 +31,7 @@ export default class Game {
     }
     startGame() {
         this.roundNumber = 0;
+
         this.datasets.forEach(d => d.splice(0, d.length));
         this.players.forEach((p, i) => {
             p.currentRoundPoints.clear();
