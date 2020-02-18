@@ -108,14 +108,6 @@ export default class Game {
         printScores(this.players);
     }
     saveGame() {
-        // window.localStorage.setItem(
-        //     "game",
-        //     JSON.stringify({
-        //         numRaces: this.numRaces,
-        //         history: this.history,
-        //         players: this.players.map(({ name }) => name)
-        //     })
-        // );
         const iGameData: IGame = {
             id: this.id,
             players: this.players.map(({ id }) => id!),

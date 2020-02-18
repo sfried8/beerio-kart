@@ -63,14 +63,18 @@
                 <button v-if="players.length" @click="startGame">start</button>
             </div>
             <div>
-                <div
-                    v-for="g in inProgressGames"
+                <input
+                    type="checkbox"
+                    v-model="showFinishedGames"
+                    name="showFinishedGames"
+                /><label for="showFinishedGames">Show Finished Games</label>
+                <existing-game-option-component
+                    v-for="g in gamesToShow"
                     :key="g.id"
-                    @click="loadGame(g)"
+                    @click.native="loadGame(g)"
                     class="recent-name"
-                >
-                    {{ JSON.stringify(g) }}
-                </div>
+                    v-bind.sync="g"
+                ></existing-game-option-component>
             </div>
         </div>
     </div>
@@ -81,6 +85,7 @@
 import { KeypadPrompt } from "./KeypadPrompt";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
+import ExistingGameOptionComponent from "./ExistingGameOptionComponent.vue";
 import * as DatabaseManager from "../DatabaseManager";
 function printScores(players: Player[]) {
     players.forEach(p => {
@@ -94,31 +99,38 @@ import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({
-    components: { PointPlaceComponent, PlayerComponent }
+    components: {
+        PointPlaceComponent,
+        PlayerComponent,
+        ExistingGameOptionComponent
+    }
 })
 export default class KartGame extends Vue {
     players: Player[] = [];
     numRaces: number = 8;
+    allExistingGames: IGame[] = [];
     inProgressGames: IGame[] = [];
     game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
-
+    showFinishedGames: boolean = false;
     async mounted() {
-        const existingGameStr = window.localStorage.getItem("game");
         await DatabaseManager.init();
         this.playersFromDatabase = await DatabaseManager.getPlayers();
-        this.inProgressGames = await DatabaseManager.getAllGames();
+        this.allExistingGames = await DatabaseManager.getAllGames(true);
+        this.inProgressGames = this.allExistingGames.filter(
+            g => g.numRaces > g.history.length
+        );
     }
     async startGame() {
         this.game = new Game(this.players, this.numRaces);
         await this.game.init();
-        // this.recentNames = Util.uniquify(this.recentNames);
-        // window.localStorage.setItem(
-        // "recentNames",
-        // JSON.stringify(this.recentNames)
-        // );
         this.game.startGame();
+    }
+    get gamesToShow() {
+        return this.showFinishedGames
+            ? this.allExistingGames
+            : this.inProgressGames;
     }
     loadGame(gameToLoad: IGame) {
         this.players = gameToLoad.players.map(

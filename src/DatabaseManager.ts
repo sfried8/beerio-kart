@@ -57,3 +57,6 @@ export async function addOrUpdateGame(game: IGame) {
 export async function addPlayer(name: string) {
     return db.players.add({ name });
 }
+export async function getPlayerById(id: number) {
+    return db.players.get(id);
+}
