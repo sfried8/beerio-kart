@@ -66,6 +66,11 @@ export default {
         "name result"
         "total result";
 }
+@media only screen and (orientation: landscape) {
+    .playerComponent {
+        width: calc(50% - 60px);
+    }
+}
 .message {
     font-weight: normal;
     font-size: small;

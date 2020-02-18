@@ -3,8 +3,12 @@
         <div v-if="roundNumber >= 0">
             <div>Round {{ roundNumber }}</div>
 
-            <div v-for="player in players" :key="player.name">
-                <player-component v-bind.sync="player"></player-component>
+            <div class="player-component-container">
+                <player-component
+                    v-for="player in players"
+                    :key="player.name"
+                    v-bind.sync="player"
+                ></player-component>
             </div>
 
             <div class="button-panel">
@@ -12,7 +16,11 @@
                     undo
                 </button>
 
-                <button @click="promptAll" class="next">
+                <button
+                    @click="promptAll"
+                    v-if="roundNumber < numRaces"
+                    class="next"
+                >
                     Enter race {{ roundNumber + 1 }} results
                 </button>
                 <button @click="newGame" class="newgame">New Game</button>
@@ -50,7 +58,10 @@
                     {{ n.name }}
                 </div>
             </div>
-            <button v-if="players.length" @click="startGame">start</button>
+            <div>
+                <input v-model="numRaces" />
+                <button v-if="players.length" @click="startGame">start</button>
+            </div>
         </div>
     </div>
 </template>
@@ -68,6 +79,7 @@ function printScores(players: Player[]) {
 }
 
 import Player, { IPlayer } from "../models/Player";
+import Game from "../models/Game";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
@@ -76,46 +88,47 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 })
 export default class KartGame extends Vue {
     players: Player[] = [];
-    roundNumber: number = -1;
+    numRaces: number = 8;
+    game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
 
     async mounted() {
         const existingGameStr = window.localStorage.getItem("game");
-        await DatabaseManager.init();
-        // if (existingGameStr) {
-        //     const existingGame = JSON.parse(existingGameStr);
-        //     if (
-        //         existingGame &&
-        //         existingGame.players &&
-        //         existingGame.roundNumber
-        //     ) {
-        //         this.roundNumber = existingGame.roundNumber;
+                await DatabaseManager.init();
 
-        //         existingGame.players.forEach((p: Player, i: number) => {
-        //             const player = new Player(p);
-        //             this.players.push(player);
-        //             player.playerColor = [
-        //                 "#fae451",
-        //                 "#6cecfd",
-        //                 "#fe727d",
-        //                 "#3ee413"
-        //             ][i];
-        //         });
-        //         printScores(this.players);
-        //     }
-        // }
-
-        // this.playersFromDatabase = JSON.parse(
-        //     window.localStorage.getItem("playersFromDatabase") || "[]"
-        // );
-        this.playersFromDatabase = await DatabaseManager.getPlayers();
+        if (existingGameStr) {
+            const existingGame = JSON.parse(existingGameStr);
+            if (
+                existingGame &&
+                existingGame.players &&
+                existingGame.history &&
+                existingGame.history.length
+            ) {
+                this.numRaces = existingGame.numRaces;
+                existingGame.players.forEach((p: string, i: number) => {
+                    const player = new Player(p);
+                    this.players.push(player);
+                });
+                this.game = new Game(
+                    this.players,
+                    this.numRaces,
+                    existingGame.history
+                );
+            }
+        }
+        this.recentNames = JSON.parse(
+            window.localStorage.getItem("recentNames") || "[]"
+        );
     }
     startGame() {
-        this.roundNumber = 0;
-        this.players.forEach((p, i) => {
-            p.playerColor = ["#fae451", "#6cecfd", "#fe727d", "#3ee413"][i];
-        });
+        this.game = new Game(this.players, this.numRaces);
+        this.recentNames = Util.uniquify(this.recentNames);
+        window.localStorage.setItem(
+            "recentNames",
+            JSON.stringify(this.recentNames)
+        );
+        this.game.startGame();
     }
     async addPlayer(existingPlayer?: IPlayer) {
         if (!existingPlayer) {
@@ -128,71 +141,23 @@ export default class KartGame extends Vue {
         this.players.push(new Player(existingPlayer));
         this.pendingName = "";
     }
-    round() {
-        this.players.forEach(p => (p.numPlayers = this.players.length));
-        this.roundNumber += 1;
-        const lastPlace = Math.max(...this.players.map(p => p.pendingPoints));
-        for (let p of this.players) {
-            p.saveState();
-            const addedPoints = p.pendingPoints;
-            p.pendingPoints = 0;
-            p.points.combineGroup(p.currentRoundPoints);
-            p.currentRoundPoints.clear();
-            p.addRacePoints(addedPoints, lastPlace);
-            if (this.roundNumber % 4 === 0) {
-                p.addKanpaiPoint(this.roundNumber);
-            }
-        }
-        while (true) {
-            for (let p of this.players) {
-                const opponents = this.players.filter(x => x !== p);
-
-                while (p.extraDict.length) {
-                    const extraPoint = p.extraDict.shift();
-                    if (extraPoint) {
-                        opponents.forEach(o => {
-                            o.addBonusPoint(p.name, extraPoint);
-                        });
-                    }
-                }
-            }
-
-            if (!this.players.some(x => x.extraDict.length > 0)) {
-                printScores(this.players);
-                this.saveGame();
-                return;
-            }
-        }
-    }
     undo() {
-        this.roundNumber -= 1;
-        for (let p of this.players) {
-            p.undo();
+        if (this.game) {
+            this.game.undo();
         }
-        printScores(this.players);
-    }
-    saveGame() {
-        window.localStorage.setItem(
-            "game",
-            JSON.stringify({
-                roundNumber: this.roundNumber,
-                players: this.players.map(({ messages, ...p }) => p)
-            })
-        );
     }
     newGame() {
-        this.roundNumber = -1;
+        this.game = null;
         this.pendingName = "";
         this.players = [];
     }
     promptAll() {
-        let prom: any = Promise.resolve();
-        this.players.forEach(p => {
-            prom = prom
-                .then((_: any) => KeypadPrompt(p.name))
-                .then((val: number) => (p.pendingPoints = val));
-        });
-        prom = prom.then((_: any) => this.round());
+        if (this.game) {
+            this.game.promptAll();
+        }
+    }
+    get roundNumber() {
+        return this.game ? this.game.roundNumber : -1;
     }
     get availableRecentNames() {
         return this.playersFromDatabase.filter(
@@ -201,17 +166,16 @@ export default class KartGame extends Vue {
     }
     get chartData() {
         const trendlines: any[] = [];
-        this.players.forEach(p => {
+        if (!this.game) {
+            return { datasets: [] };
+        }
+        this.game.datasets.forEach((d, i) => {
             const playerAverages: number[][] = [];
-            p.history.forEach(h => {
-                const numPoints = [
-                    ...Object.values(h.points.points),
-                    ...Object.values(h.currentRoundPoints.points)
-                ].reduce((acc, cur) => acc + cur.length, 0);
-                if (!playerAverages[numPoints]) {
-                    playerAverages[numPoints] = [];
+            d.forEach(h => {
+                if (!playerAverages[h.x]) {
+                    playerAverages[h.x] = [];
                 }
-                playerAverages[numPoints].push(h.place);
+                playerAverages[h.x].push(h.y);
             });
             const playerTrendlines = [];
 
@@ -226,53 +190,22 @@ export default class KartGame extends Vue {
             trendlines.push({
                 label: "remove",
                 data: playerTrendlines,
-                backgroundColor: p.playerColor,
-                borderColor: p.playerColor,
+                backgroundColor: this.players[i].playerColor,
+                borderColor: this.players[i].playerColor,
                 fill: false,
                 type: "line"
             });
         });
         return {
             datasets: [
-                ...this.players.map(p => ({
+                ...this.players.map((p, i) => ({
                     label: p.name,
-                    data: p.history.map(h => ({
-                        x: [
-                            ...Object.values(h.points.points),
-                            ...Object.values(h.currentRoundPoints.points)
-                        ].reduce((acc, cur) => acc + cur.length, 0),
-                        y: h.place
-                    })),
+                    data: this.game ? this.game.datasets[i] : [],
                     backgroundColor: p.playerColor,
                     pointRadius: 6
                 })),
                 ...trendlines
             ]
-        };
-    }
-    get options() {
-        return {
-            // responsive: true,
-            scales: {
-                yAxes: [
-                    {
-                        ticks: {
-                            max: 12,
-                            min: 1,
-                            stepSize: 1
-                        }
-                    }
-                ],
-                xAxes: [
-                    {
-                        ticks: {
-                            max: 1,
-                            min: 12,
-                            stepSize: 1
-                        }
-                    }
-                ]
-            }
         };
     }
 }
@@ -308,5 +241,10 @@ export default class KartGame extends Vue {
     border: 1px #dddddd solid;
     border-radius: 1vh;
     width: 15vw;
+}
+.player-component-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 </style>
