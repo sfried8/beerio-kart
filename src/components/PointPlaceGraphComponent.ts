@@ -1,6 +1,20 @@
 import { Scatter, mixins } from "vue-chartjs";
 import Vue from "vue";
 const { reactiveProp } = mixins;
+const newLegendClickHandler = function(e: any, legendItem: any) {
+    var index = legendItem.datasetIndex;
+    // @ts-ignore
+    let ci = this.chart;
+
+    [
+        ci.getDatasetMeta(index),
+        ci.getDatasetMeta(index + ci.data.datasets.length / 2)
+    ].forEach(function(meta) {
+        meta.hidden =
+            meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+    });
+    ci.update();
+};
 export default Vue.extend({
     extends: Scatter,
     mixins: [reactiveProp],
@@ -44,7 +58,8 @@ export default Vue.extend({
                     labels: {
                         filter: (item: { text: string }) =>
                             !item.text.includes("remove")
-                    }
+                    },
+                    onClick: newLegendClickHandler
                 },
                 responsive: true,
                 maintainAspectRatio: false

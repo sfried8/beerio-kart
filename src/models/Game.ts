@@ -3,24 +3,43 @@ function printScores(players: Player[]) {
         p.messages = p.currentRoundPoints.displayStrings();
     });
 }
-
+export interface IGame {
+    id?: number;
+    players: number[];
+    numRaces: number;
+    history: number[][];
+}
 import Player from "../models/Player";
 import { KeypadPrompt } from "@/components/KeypadPrompt";
-
+import * as DatabaseManager from "../DatabaseManager";
 export default class Game {
     public raceResults: number[];
     public roundNumber: number = -1;
     public datasets: { x: number; y: number }[][] = [];
+    public id?: number;
     constructor(
         public players: Player[] = [],
         public numRaces: number = 8,
-        public history: number[][] = []
+        public history: number[][] = [],
+        existingId?: number
     ) {
         this.raceResults = [];
         this.datasets = players.map(p => []);
+        if (existingId) {
+            this.id = existingId;
+        }
         if (this.history.length) {
             this.repopulateHistory();
         }
+    }
+    async init() {
+        return DatabaseManager.newGame({
+            players: this.players.map(({ id }) => id!),
+            numRaces: this.numRaces,
+            history: this.history
+        }).then(id => {
+            this.id = id;
+        });
     }
     repopulateHistory() {
         this.startGame();
@@ -89,14 +108,21 @@ export default class Game {
         printScores(this.players);
     }
     saveGame() {
-        window.localStorage.setItem(
-            "game",
-            JSON.stringify({
-                numRaces: this.numRaces,
-                history: this.history,
-                players: this.players.map(({ name }) => name)
-            })
-        );
+        // window.localStorage.setItem(
+        //     "game",
+        //     JSON.stringify({
+        //         numRaces: this.numRaces,
+        //         history: this.history,
+        //         players: this.players.map(({ name }) => name)
+        //     })
+        // );
+        const iGameData: IGame = {
+            id: this.id,
+            players: this.players.map(({ id }) => id!),
+            numRaces: this.numRaces,
+            history: this.history
+        };
+        DatabaseManager.addOrUpdateGame(iGameData);
     }
     async promptAll() {
         for (let i = 0; i < this.players.length; i++) {

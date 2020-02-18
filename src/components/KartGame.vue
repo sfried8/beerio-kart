@@ -62,6 +62,16 @@
                 <input v-model="numRaces" />
                 <button v-if="players.length" @click="startGame">start</button>
             </div>
+            <div>
+                <div
+                    v-for="g in inProgressGames"
+                    :key="g.id"
+                    @click="loadGame(g)"
+                    class="recent-name"
+                >
+                    {{ JSON.stringify(g) }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -79,7 +89,7 @@ function printScores(players: Player[]) {
 }
 
 import Player, { IPlayer } from "../models/Player";
-import Game from "../models/Game";
+import Game, { IGame } from "../models/Game";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
@@ -89,46 +99,43 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 export default class KartGame extends Vue {
     players: Player[] = [];
     numRaces: number = 8;
+    inProgressGames: IGame[] = [];
     game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
 
     async mounted() {
         const existingGameStr = window.localStorage.getItem("game");
-                await DatabaseManager.init();
-
-        if (existingGameStr) {
-            const existingGame = JSON.parse(existingGameStr);
-            if (
-                existingGame &&
-                existingGame.players &&
-                existingGame.history &&
-                existingGame.history.length
-            ) {
-                this.numRaces = existingGame.numRaces;
-                existingGame.players.forEach((p: string, i: number) => {
-                    const player = new Player(p);
-                    this.players.push(player);
-                });
-                this.game = new Game(
-                    this.players,
-                    this.numRaces,
-                    existingGame.history
-                );
-            }
-        }
-        this.recentNames = JSON.parse(
-            window.localStorage.getItem("recentNames") || "[]"
-        );
+        await DatabaseManager.init();
+        this.playersFromDatabase = await DatabaseManager.getPlayers();
+        this.inProgressGames = await DatabaseManager.getAllGames();
     }
-    startGame() {
+    async startGame() {
         this.game = new Game(this.players, this.numRaces);
-        this.recentNames = Util.uniquify(this.recentNames);
-        window.localStorage.setItem(
-            "recentNames",
-            JSON.stringify(this.recentNames)
-        );
+        await this.game.init();
+        // this.recentNames = Util.uniquify(this.recentNames);
+        // window.localStorage.setItem(
+        // "recentNames",
+        // JSON.stringify(this.recentNames)
+        // );
         this.game.startGame();
+    }
+    loadGame(gameToLoad: IGame) {
+        this.players = gameToLoad.players.map(
+            playerId =>
+                new Player(
+                    this.playersFromDatabase.find(
+                        player => player.id === playerId
+                    ) || { name: "uh-oh" }
+                )
+        );
+        this.numRaces = gameToLoad.numRaces;
+        this.game = new Game(
+            this.players,
+            this.numRaces,
+            gameToLoad.history,
+            gameToLoad.id
+        );
     }
     async addPlayer(existingPlayer?: IPlayer) {
         if (!existingPlayer) {
