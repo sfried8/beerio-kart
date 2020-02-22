@@ -1,7 +1,13 @@
 <template>
     <div id="app">
-        <router-link to="/newgame">New Game</router-link>
-        <router-link to="/loadgame">Load Game</router-link>
+        <div class="router-menu">
+            <router-link v-if="$route.name !== 'newgame'" to="/newgame"
+                >New Game</router-link
+            >
+            <router-link v-if="$route.name !== 'loadgame'" to="/loadgame"
+                >Load Game</router-link
+            >
+        </div>
         <router-view></router-view>
     </div>
 </template>
@@ -26,5 +32,12 @@ export default class App extends Vue {}
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+}
+.router-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 200px;
+    margin: 0 auto 10px auto;
 }
 </style>
