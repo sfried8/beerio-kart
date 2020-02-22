@@ -5,13 +5,15 @@ function printScores(players: Player[]) {
 }
 export interface IGame {
     id?: number;
+    date?: Date;
     players: number[];
     numRaces: number;
     history: number[][];
 }
 import Player from "../models/Player";
 import { KeypadPrompt } from "@/components/KeypadPrompt";
-import * as DatabaseManager from "../DatabaseManager";
+import Vue from "vue";
+import DatabaseManager from "../DatabaseManager";
 export default class Game {
     public raceResults: number[];
     public roundNumber: number = -1;
@@ -36,22 +38,43 @@ export default class Game {
         return DatabaseManager.newGame({
             players: this.players.map(({ id }) => id!),
             numRaces: this.numRaces,
-            history: this.history
+            history: this.history,
+            date: new Date()
         }).then(id => {
             this.id = id;
+            this.players.forEach((p, i) => {
+                DatabaseManager.getDataPointsByPlayer(p.id || -1).then(dps => {
+                    Vue.set(
+                        this.datasets,
+                        i,
+                        dps
+                            .filter(dp => dp.gameId != this.id)
+                            .map(({ x, y }) => ({ x, y }))
+                    );
+                });
+            });
         });
     }
     repopulateHistory() {
         this.startGame();
         for (const historyItem of this.history) {
             this.raceResults = [...historyItem];
-            this.round();
+            this.round(true);
         }
     }
     startGame() {
         this.roundNumber = 0;
 
         this.datasets.forEach(d => d.splice(0, d.length));
+        this.players.forEach((p, i) => {
+            DatabaseManager.getDataPointsByPlayer(p.id || -1).then(dps => {
+                Vue.set(
+                    this.datasets,
+                    i,
+                    dps.map(({ x, y }) => ({ x, y }))
+                );
+            });
+        });
         this.players.forEach((p, i) => {
             p.currentRoundPoints.clear();
             p.extraDict = [];
@@ -60,7 +83,7 @@ export default class Game {
             p.numPlayers = this.players.length;
         });
     }
-    round() {
+    round(isUndoing: boolean = false) {
         this.roundNumber += 1;
 
         const lastPlace = Math.max(...this.raceResults);
@@ -68,10 +91,16 @@ export default class Game {
             const p = this.players[i];
 
             const addedPoints = this.raceResults[i];
-            if (!this.datasets[i]) {
-                this.datasets[i] = [];
+            const dataPoint = { x: p.totalPoints(), y: addedPoints };
+
+            if (!isUndoing && this.id && p.id) {
+                DatabaseManager.addDataPoint({
+                    ...dataPoint,
+                    gameId: this.id,
+                    playerId: p.id
+                });
             }
-            this.datasets[i].push({ x: p.totalPoints(), y: addedPoints });
+            this.datasets[i].push(dataPoint);
             this.raceResults[i] = 0;
             p.points.combineGroup(p.currentRoundPoints);
             p.currentRoundPoints.clear();
@@ -108,13 +137,15 @@ export default class Game {
         printScores(this.players);
     }
     saveGame() {
-        const iGameData: IGame = {
-            id: this.id,
-            players: this.players.map(({ id }) => id!),
-            numRaces: this.numRaces,
-            history: this.history
-        };
-        DatabaseManager.addOrUpdateGame(iGameData);
+        // const iGameData: IGame = {
+        //     id: this.id,
+        //     players: this.players.map(({ id }) => id!),
+        //     numRaces: this.numRaces,
+        //     history: this.history
+        // };
+        if (this.id) {
+            DatabaseManager.updateGameHistory(this.id, this.history);
+        }
     }
     async promptAll() {
         for (let i = 0; i < this.players.length; i++) {

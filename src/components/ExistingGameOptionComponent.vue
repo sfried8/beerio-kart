@@ -1,6 +1,7 @@
 <template>
-    <div>
-        <div>#{{ id }}</div>
+    <div class="recent-game">
+        <div class="existing-option-id">#{{ id }}</div>
+        <div>{{ dateString }}</div>
         <div>
             {{ playerNameString }}
         </div>
@@ -11,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { getPlayerById } from "../DatabaseManager";
+import DatabaseManager from "../DatabaseManager";
 import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class ExistingGameOptionComponent extends Vue {
@@ -19,10 +20,11 @@ export default class ExistingGameOptionComponent extends Vue {
     @Prop() public players!: number[];
     @Prop() public numRaces!: number;
     @Prop() public history!: number[][];
+    @Prop() public date!: Date;
     public playerNames: string[] = [];
     async mounted() {
         for (const playerId of this.players) {
-            const player = await getPlayerById(playerId);
+            const player = await DatabaseManager.getPlayerById(playerId);
             if (player) {
                 this.playerNames.push(player.name);
             }
@@ -34,7 +36,26 @@ export default class ExistingGameOptionComponent extends Vue {
     get progressString() {
         return this.history.length + "/" + this.numRaces + " races";
     }
+    get dateString() {
+        if (this.date) {
+            return this.date.toLocaleString("en-US");
+        }
+        return "";
+    }
 }
 </script>
 
-<style></style>
+<style>
+.existing-option-id {
+    color: lightgray;
+    text-align: left;
+    position: absolute;
+}
+.recent-game {
+    margin: 1vh auto;
+    padding: 2vh;
+    border: 1px #dddddd solid;
+    border-radius: 1vh;
+    width: 15vw;
+}
+</style>

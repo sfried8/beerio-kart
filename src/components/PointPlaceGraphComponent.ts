@@ -62,7 +62,17 @@ export default Vue.extend({
                     onClick: newLegendClickHandler
                 },
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                tooltips: {
+                    filter: (
+                        item: { datasetIndex: number },
+                        data: { datasets: any }
+                    ) => {
+                        return (
+                            data.datasets[item.datasetIndex].label !== "remove"
+                        );
+                    }
+                }
             }
         };
     }

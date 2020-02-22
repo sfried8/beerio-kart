@@ -62,20 +62,6 @@
                 <input v-model="numRaces" />
                 <button v-if="players.length" @click="startGame">start</button>
             </div>
-            <div>
-                <input
-                    type="checkbox"
-                    v-model="showFinishedGames"
-                    name="showFinishedGames"
-                /><label for="showFinishedGames">Show Finished Games</label>
-                <existing-game-option-component
-                    v-for="g in gamesToShow"
-                    :key="g.id"
-                    @click.native="loadGame(g)"
-                    class="recent-name"
-                    v-bind.sync="g"
-                ></existing-game-option-component>
-            </div>
         </div>
     </div>
 </template>
@@ -85,8 +71,7 @@
 import { KeypadPrompt } from "./KeypadPrompt";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
-import ExistingGameOptionComponent from "./ExistingGameOptionComponent.vue";
-import * as DatabaseManager from "../DatabaseManager";
+import DatabaseManager from "../DatabaseManager";
 function printScores(players: Player[]) {
     players.forEach(p => {
         p.messages = p.currentRoundPoints.displayStrings();
@@ -101,36 +86,31 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component({
     components: {
         PointPlaceComponent,
-        PlayerComponent,
-        ExistingGameOptionComponent
+        PlayerComponent
     }
 })
 export default class KartGame extends Vue {
     players: Player[] = [];
     numRaces: number = 8;
-    allExistingGames: IGame[] = [];
-    inProgressGames: IGame[] = [];
     game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
-    showFinishedGames: boolean = false;
     async mounted() {
         await DatabaseManager.init();
         this.playersFromDatabase = await DatabaseManager.getPlayers();
-        this.allExistingGames = await DatabaseManager.getAllGames(true);
-        this.inProgressGames = this.allExistingGames.filter(
-            g => g.numRaces > g.history.length
-        );
+        if (this.$route.params.gameid) {
+            const game = await DatabaseManager.getGameById(
+                +this.$route.params.gameid
+            );
+            if (game) {
+                this.loadGame(game);
+            }
+        }
     }
     async startGame() {
         this.game = new Game(this.players, this.numRaces);
         await this.game.init();
         this.game.startGame();
-    }
-    get gamesToShow() {
-        return this.showFinishedGames
-            ? this.allExistingGames
-            : this.inProgressGames;
     }
     loadGame(gameToLoad: IGame) {
         this.players = gameToLoad.players.map(
@@ -212,6 +192,7 @@ export default class KartGame extends Vue {
                 backgroundColor: this.players[i].playerColor,
                 borderColor: this.players[i].playerColor,
                 fill: false,
+                pointHitRadius: 0.01,
                 type: "line"
             });
         });
