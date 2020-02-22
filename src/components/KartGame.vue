@@ -1,6 +1,6 @@
 <template>
     <div class="kart-game">
-        <div v-if="roundNumber >= 0">
+        <div>
             <div>Round {{ roundNumber }}</div>
 
             <div class="player-component-container">
@@ -23,7 +23,6 @@
                 >
                     Enter race {{ roundNumber + 1 }} results
                 </button>
-                <button @click="newGame" class="newgame">New Game</button>
             </div>
             <point-place-component
                 :chart-data="chartData"
@@ -32,36 +31,6 @@
                     height: '500px'
                 }"
             />
-        </div>
-        <div v-else>
-            <div v-for="player in players" :key="player.name">
-                {{ player.name }}
-            </div>
-            <input
-                type="text"
-                @keypress.enter="addPlayer()"
-                v-model="pendingName"
-                placeholder="Name"
-            />
-            <button @click="addPlayer()">Add</button>
-            <div
-                class="recent-name-container"
-                v-if="availableRecentNames.length"
-            >
-                Recent:
-                <div
-                    v-for="n in availableRecentNames"
-                    :key="n.id"
-                    @click="addPlayer(n)"
-                    class="recent-name"
-                >
-                    {{ n.name }}
-                </div>
-            </div>
-            <div>
-                <input v-model="numRaces" />
-                <button v-if="players.length" @click="startGame">start</button>
-            </div>
         </div>
     </div>
 </template>
@@ -72,11 +41,6 @@ import { KeypadPrompt } from "./KeypadPrompt";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
 import DatabaseManager from "../DatabaseManager";
-function printScores(players: Player[]) {
-    players.forEach(p => {
-        p.messages = p.currentRoundPoints.displayStrings();
-    });
-}
 
 import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
@@ -128,6 +92,9 @@ export default class KartGame extends Vue {
             gameToLoad.history,
             gameToLoad.id
         );
+        if (!gameToLoad.history || gameToLoad.history.length === 0) {
+            this.game.startGame();
+        }
     }
     async addPlayer(existingPlayer?: IPlayer) {
         if (!existingPlayer) {
@@ -144,11 +111,6 @@ export default class KartGame extends Vue {
         if (this.game) {
             this.game.undo();
         }
-    }
-    newGame() {
-        this.game = null;
-        this.pendingName = "";
-        this.players = [];
     }
     promptAll() {
         if (this.game) {

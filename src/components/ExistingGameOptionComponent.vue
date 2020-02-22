@@ -34,7 +34,12 @@ export default class ExistingGameOptionComponent extends Vue {
         return this.playerNames.join(", ");
     }
     get progressString() {
-        return this.history.length + "/" + this.numRaces + " races";
+        return (
+            (this.history ? this.history.length : 0) +
+            "/" +
+            this.numRaces +
+            " races"
+        );
     }
     get dateString() {
         if (this.date) {

@@ -30,6 +30,11 @@ export default new Router({
                 import(
                     /* webpackChunkName: "about" */ "./components/KartGame.vue"
                 )
+        },
+        {
+            path: "/newgame",
+            name: "newgame",
+            component: () => import("./views/NewGame.vue")
         }
     ]
 });

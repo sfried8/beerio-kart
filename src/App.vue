@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <router-link to="/newgame">New Game</router-link>
         <router-link to="/loadgame">Load Game</router-link>
         <router-view></router-view>
     </div>

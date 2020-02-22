@@ -34,7 +34,7 @@ export default class LoadGame extends Vue {
         await DatabaseManager.init();
         this.allExistingGames = await DatabaseManager.getAllGames(true);
         this.inProgressGames = this.allExistingGames.filter(
-            g => g.numRaces > g.history.length
+            g => !g.history || g.numRaces > g.history.length
         );
     }
     get gamesToShow() {
