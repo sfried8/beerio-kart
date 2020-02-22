@@ -84,5 +84,15 @@ export default {
             .where("playerId")
             .equals(playerId)
             .toArray();
+    },
+    async deleteGame(game: IGame) {
+        if (!game.id) {
+            return;
+        }
+        await db.games.delete(game.id);
+        await db.datapoints
+            .where("gameId")
+            .equals(game.id)
+            .delete();
     }
 };

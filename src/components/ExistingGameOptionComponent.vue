@@ -1,6 +1,12 @@
 <template>
-    <div class="recent-game">
+    <div class="recent-game" @click="$emit('load')">
         <div class="existing-option-id">#{{ id }}</div>
+        <div
+            class="existing-option-delete"
+            @click.stop.prevent="$emit('delete')"
+        >
+            {{ deleteContent }}
+        </div>
         <div>{{ dateString }}</div>
         <div>
             {{ playerNameString }}
@@ -47,6 +53,9 @@ export default class ExistingGameOptionComponent extends Vue {
         }
         return "";
     }
+    get deleteContent() {
+        return window.innerWidth < 500 ? "X" : "Delete";
+    }
 }
 </script>
 
@@ -56,11 +65,18 @@ export default class ExistingGameOptionComponent extends Vue {
     text-align: left;
     position: absolute;
 }
+.existing-option-delete {
+    color: red;
+    position: relative;
+    float: right;
+    cursor: pointer;
+}
 .recent-game {
     margin: 1vh auto;
     padding: 2vh;
     border: 1px #dddddd solid;
     border-radius: 1vh;
-    width: 15vw;
+    min-width: 300px;
+    width: 30vw;
 }
 </style>

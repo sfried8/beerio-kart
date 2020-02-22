@@ -8,8 +8,8 @@
         <existing-game-option-component
             v-for="g in gamesToShow"
             :key="g.id"
-            @click.native="loadGame(g)"
-            class="recent-name"
+            @load="loadGame(g)"
+            @delete="deleteGame(g)"
             v-bind.sync="g"
         ></existing-game-option-component>
     </div>
@@ -44,6 +44,21 @@ export default class LoadGame extends Vue {
     }
     loadGame(gameToLoad: IGame) {
         this.$router.push("game/" + gameToLoad.id);
+    }
+    async deleteGame(gameToDelete: IGame) {
+        if (
+            confirm(
+                `Are you sure you want to delete this game and all data associated with it?`
+            )
+        ) {
+            await DatabaseManager.deleteGame(gameToDelete);
+            this.inProgressGames = this.inProgressGames.filter(
+                g => g !== gameToDelete
+            );
+            this.allExistingGames = this.allExistingGames.filter(
+                g => g !== gameToDelete
+            );
+        }
     }
 }
 </script>
