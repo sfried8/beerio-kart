@@ -1,6 +1,6 @@
 <template>
     <div class="recent-game" @click="$emit('load')">
-        <div class="existing-option-id">#{{ id }}</div>
+        <div class="existing-option-id">#{{ _id }}</div>
         <div
             class="existing-option-delete"
             @click.stop.prevent="$emit('delete')"
@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import DatabaseManager from "../DatabaseManager";
+import DatabaseManager from "../MongoDatabaseManager";
 import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class ExistingGameOptionComponent extends Vue {
-    @Prop() public id!: number;
+    @Prop() public _id!: number;
     @Prop() public players!: number[];
     @Prop() public numRaces!: number;
     @Prop() public history!: number[][];

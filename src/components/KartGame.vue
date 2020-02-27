@@ -40,7 +40,7 @@
 import { KeypadPrompt } from "./KeypadPrompt";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
-import DatabaseManager from "../DatabaseManager";
+import DatabaseManager from "../MongoDatabaseManager";
 
 import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
@@ -81,7 +81,7 @@ export default class KartGame extends Vue {
             playerId =>
                 new Player(
                     this.playersFromDatabase.find(
-                        player => player.id === playerId
+                        player => player._id === playerId
                     ) || { name: "uh-oh" }
                 )
         );
@@ -90,7 +90,7 @@ export default class KartGame extends Vue {
             this.players,
             this.numRaces,
             gameToLoad.history,
-            gameToLoad.id
+            gameToLoad._id
         );
         if (!gameToLoad.history || gameToLoad.history.length === 0) {
             this.game.startGame();
@@ -101,8 +101,8 @@ export default class KartGame extends Vue {
             if (!this.pendingName) {
                 return;
             }
-            const id = await DatabaseManager.addPlayer(this.pendingName);
-            existingPlayer = { name: this.pendingName, id };
+            const _id = await DatabaseManager.addPlayer(this.pendingName);
+            existingPlayer = { name: this.pendingName, _id };
         }
         this.players.push(new Player(existingPlayer));
         this.pendingName = "";
@@ -122,7 +122,7 @@ export default class KartGame extends Vue {
     }
     get availableRecentNames() {
         return this.playersFromDatabase.filter(
-            n => !this.players.some(p => p.id === n.id)
+            n => !this.players.some(p => p._id === n._id)
         );
     }
     get chartData() {

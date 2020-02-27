@@ -10,9 +10,9 @@ class KartDatabase extends Dexie {
     constructor(databaseName: string) {
         super(databaseName);
         this.version(1).stores({
-            players: "++id,name",
-            games: "++id,*players,numRaces",
-            datapoints: "++id,playerId,gameId"
+            players: "++_id,name",
+            games: "++_id,*players,numRaces",
+            datapoints: "++_id,playerId,gameId"
         });
         this.games = this.table("games");
         this.players = this.table("players");
@@ -21,8 +21,23 @@ class KartDatabase extends Dexie {
 }
 
 const db = new KartDatabase("beerio-kart");
+export interface IDatabaseManager {
+    init(): Promise<any>;
+    getPlayers(): Promise<IPlayer[]>;
 
-export default {
+    getGameById(id: number): Promise<IGame | undefined>;
+    getAllGames(includeFinished: boolean): Promise<IGame[]>;
+    newGame(game: IGame): Promise<number>;
+    updateGameHistory(gameId: number, history: number[][]): Promise<number>;
+    putGame(game: IGame): Promise<number>;
+    addPlayer(name: string): Promise<number>;
+    getPlayerById(id: number): Promise<IPlayer | undefined>;
+    addDataPoint(dataPoint: IDataPoint): Promise<number>;
+    getDataPointsByPlayer(playerId: number): Promise<IDataPoint[]>;
+    deleteGame(game: IGame): Promise<any>;
+}
+
+const DatabaseManager: IDatabaseManager = {
     async init() {
         if (db.isOpen()) {
             return Promise.resolve();
@@ -86,13 +101,14 @@ export default {
             .toArray();
     },
     async deleteGame(game: IGame) {
-        if (!game.id) {
+        if (!game._id) {
             return;
         }
-        await db.games.delete(game.id);
+        await db.games.delete(game._id);
         await db.datapoints
             .where("gameId")
-            .equals(game.id)
+            .equals(game._id)
             .delete();
     }
 };
+export default DatabaseManager;

@@ -7,7 +7,7 @@
         /><label for="showFinishedGames">Show Finished Games</label>
         <existing-game-option-component
             v-for="g in gamesToShow"
-            :key="g.id"
+            :key="g._id"
             @load="loadGame(g)"
             @delete="deleteGame(g)"
             v-bind.sync="g"
@@ -16,7 +16,7 @@
 </template>
 <script lang="ts">
 import ExistingGameOptionComponent from "../components/ExistingGameOptionComponent.vue";
-import DatabaseManager from "../DatabaseManager";
+import DatabaseManager from "../MongoDatabaseManager";
 
 import Game, { IGame } from "../models/Game";
 import { Component, Prop, Vue } from "vue-property-decorator";
@@ -43,7 +43,7 @@ export default class LoadGame extends Vue {
             : this.inProgressGames;
     }
     loadGame(gameToLoad: IGame) {
-        this.$router.push("game/" + gameToLoad.id);
+        this.$router.push("game/" + gameToLoad._id);
     }
     async deleteGame(gameToDelete: IGame) {
         if (

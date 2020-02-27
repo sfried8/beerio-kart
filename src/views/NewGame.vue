@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import DatabaseManager from "../DatabaseManager";
+import DatabaseManager from "../MongoDatabaseManager";
 
 import Player, { IPlayer } from "../models/Player";
 import { Component, Prop, Vue } from "vue-property-decorator";
@@ -34,12 +34,12 @@ export default class NewGame extends Vue {
     }
     async startGame() {
         for (const player of this.players) {
-            if (!player.id) {
-                player.id = await DatabaseManager.addPlayer(player.name);
+            if (!player._id) {
+                player._id = await DatabaseManager.addPlayer(player.name);
             }
         }
         const gameId = await DatabaseManager.newGame({
-            players: this.players.map(({ id }) => id!),
+            players: this.players.map(({ _id }) => _id!),
             numRaces: this.numRaces,
             history: [],
             date: new Date()
@@ -48,7 +48,7 @@ export default class NewGame extends Vue {
     }
     get availableOptions() {
         return this.playersFromDatabase.filter(
-            n => !this.players.some(p => p.id === n.id)
+            n => !this.players.some(p => p._id === n._id)
         );
     }
 }

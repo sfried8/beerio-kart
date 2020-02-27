@@ -6,11 +6,11 @@ type HistoryItem = {
     extraDict: number[];
 };
 export interface IPlayer {
-    id?: number;
+    _id?: number;
     name: string;
 }
 export default class Player {
-    public id?: number;
+    public _id?: number;
     public name: string;
     public points: PointGroup;
     public currentRoundPoints: PointGroup;
@@ -21,7 +21,7 @@ export default class Player {
     public numPlayers: number = 0;
     public playerColor: string | undefined;
     constructor(playerInfo: IPlayer) {
-        this.id = playerInfo.id;
+        this._id = playerInfo._id;
         this.name = playerInfo.name;
         this.points = new PointGroup();
         this.currentRoundPoints = new PointGroup();
