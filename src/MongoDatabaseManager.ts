@@ -1,4 +1,4 @@
-import { IDatabaseManager } from "./DatabaseManager";
+import DatabaseManager, { IDatabaseManager } from "./DatabaseManager";
 import { IDataPoint } from "./models/DataPoint";
 import { IGame } from "./models/Game";
 
@@ -12,7 +12,7 @@ const MongoDatabaseManager: IDatabaseManager = {
         return json.json();
     },
 
-    async getGameById(id: number) {
+    async getGameById(id: string) {
         const json = await fetch(url + "/game/" + id);
         return json.json();
     },
@@ -24,36 +24,44 @@ const MongoDatabaseManager: IDatabaseManager = {
         return games.filter((g: IGame) => g.history.length < g.numRaces);
     },
     async newGame(game: IGame) {
+        return (
+            await (
+                await fetch(url + "/game", {
+                    body: JSON.stringify(game),
+                    method: "POST",
+                    headers: { "Content-type": "application/json" }
+                })
+            ).json()
+        )._id;
+    },
+    async updateGameHistory(gameId: string, history: number[][]) {
         return await (
-            await fetch(url + "/game", {
-                body: JSON.stringify(game),
-                method: "POST"
+            await fetch(url + "/game/" + gameId, {
+                body: JSON.stringify({ history }),
+                method: "PUT",
+                headers: { "Content-type": "application/json" }
             })
         ).json();
     },
-    async updateGameHistory(gameId: number, history: number[][]) {
-        // return db.games.update(gameId, { history });
-        return 0;
-    },
     async putGame(game: IGame) {
-        return 0; //db.games.put(game);
+        return "0"; //db.games.put(game);
     },
     async addPlayer(name: string) {
         return await (
             await fetch(url + "/player", {
                 body: JSON.stringify({ name }),
                 method: "POST",
-                mode: "no-cors"
+                headers: { "Content-type": "application/json" }
             })
         ).json();
     },
-    async getPlayerById(id: number) {
+    async getPlayerById(id: string) {
         return (await fetch(url + "/player/" + id)).json();
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return 0; //db.datapoints.add(dataPoint);
+        return "0"; //db.datapoints.add(dataPoint);
     },
-    async getDataPointsByPlayer(playerId: number) {
+    async getDataPointsByPlayer(playerId: string) {
         // return db.datapoints
         //     .where("playerId")
         //     .equals(playerId)
@@ -61,14 +69,12 @@ const MongoDatabaseManager: IDatabaseManager = {
         return [];
     },
     async deleteGame(game: IGame) {
-        // if (!game.id) {
-        //     return;
-        // }
-        // await db.games.delete(game.id);
-        // await db.datapoints
-        //     .where("gameId")
-        //     .equals(game.id)
-        //     .delete();
+        if (!game._id) {
+            return;
+        }
+        await fetch(url + "/game/" + game._id, {
+            method: "DELETE"
+        });
     }
 };
 export default MongoDatabaseManager;

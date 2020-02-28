@@ -4,9 +4,9 @@ function printScores(players: Player[]) {
     });
 }
 export interface IGame {
-    _id?: number;
+    _id?: string;
     date?: Date;
-    players: number[];
+    players: string[];
     numRaces: number;
     history: number[][];
 }
@@ -18,12 +18,12 @@ export default class Game {
     public raceResults: number[];
     public roundNumber: number = -1;
     public datasets: { x: number; y: number }[][] = [];
-    public _id?: number;
+    public _id?: string;
     constructor(
         public players: Player[] = [],
         public numRaces: number = 8,
         public history: number[][] = [],
-        existingId?: number
+        existingId?: string
     ) {
         this.raceResults = [];
         this.datasets = players.map(p => []);
@@ -36,14 +36,14 @@ export default class Game {
     }
     async init() {
         return DatabaseManager.newGame({
-            players: this.players.map(({ _id: id }) => id!),
+            players: this.players.map(({ _id: id }) => "" + id!),
             numRaces: this.numRaces,
             history: this.history,
             date: new Date()
         }).then(id => {
             this._id = id;
             this.players.forEach((p, i) => {
-                DatabaseManager.getDataPointsByPlayer(p._id || -1).then(dps => {
+                DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
                     Vue.set(
                         this.datasets,
                         i,
@@ -67,7 +67,7 @@ export default class Game {
 
         this.datasets.forEach(d => d.splice(0, d.length));
         this.players.forEach((p, i) => {
-            DatabaseManager.getDataPointsByPlayer(p._id || -1).then(dps => {
+            DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
                 Vue.set(
                     this.datasets,
                     i,

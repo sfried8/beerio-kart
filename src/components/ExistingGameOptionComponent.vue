@@ -22,8 +22,8 @@ import DatabaseManager from "../MongoDatabaseManager";
 import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class ExistingGameOptionComponent extends Vue {
-    @Prop() public _id!: number;
-    @Prop() public players!: number[];
+    @Prop() public _id!: string;
+    @Prop() public players!: string[];
     @Prop() public numRaces!: number;
     @Prop() public history!: number[][];
     @Prop() public date!: Date;

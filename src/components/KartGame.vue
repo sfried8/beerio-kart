@@ -64,7 +64,7 @@ export default class KartGame extends Vue {
         this.playersFromDatabase = await DatabaseManager.getPlayers();
         if (this.$route.params.gameid) {
             const game = await DatabaseManager.getGameById(
-                +this.$route.params.gameid
+                this.$route.params.gameid
             );
             if (game) {
                 this.loadGame(game);

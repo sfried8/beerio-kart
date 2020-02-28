@@ -6,11 +6,11 @@ type HistoryItem = {
     extraDict: number[];
 };
 export interface IPlayer {
-    _id?: number;
+    _id?: string;
     name: string;
 }
 export default class Player {
-    public _id?: number;
+    public _id?: string;
     public name: string;
     public points: PointGroup;
     public currentRoundPoints: PointGroup;

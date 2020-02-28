@@ -10,9 +10,9 @@ class KartDatabase extends Dexie {
     constructor(databaseName: string) {
         super(databaseName);
         this.version(1).stores({
-            players: "++_id,name",
-            games: "++_id,*players,numRaces",
-            datapoints: "++_id,playerId,gameId"
+            players: "++id,_id,name",
+            games: "++id,_id,*players,numRaces",
+            datapoints: "++id,_id,playerId,gameId"
         });
         this.games = this.table("games");
         this.players = this.table("players");
@@ -25,18 +25,20 @@ export interface IDatabaseManager {
     init(): Promise<any>;
     getPlayers(): Promise<IPlayer[]>;
 
-    getGameById(id: number): Promise<IGame | undefined>;
+    getGameById(id: string): Promise<IGame | undefined>;
     getAllGames(includeFinished: boolean): Promise<IGame[]>;
-    newGame(game: IGame): Promise<number>;
-    updateGameHistory(gameId: number, history: number[][]): Promise<number>;
-    putGame(game: IGame): Promise<number>;
-    addPlayer(name: string): Promise<number>;
-    getPlayerById(id: number): Promise<IPlayer | undefined>;
-    addDataPoint(dataPoint: IDataPoint): Promise<number>;
-    getDataPointsByPlayer(playerId: number): Promise<IDataPoint[]>;
+    newGame(game: IGame): Promise<string>;
+    updateGameHistory(gameId: string, history: number[][]): Promise<string>;
+    putGame(game: IGame): Promise<string>;
+    addPlayer(name: string): Promise<string>;
+    getPlayerById(id: string): Promise<IPlayer | undefined>;
+    addDataPoint(dataPoint: IDataPoint): Promise<string>;
+    getDataPointsByPlayer(playerId: string): Promise<IDataPoint[]>;
     deleteGame(game: IGame): Promise<any>;
 }
 
+const getRandomId = () =>
+    "" + (Math.floor(Math.random() * 100000000) + 100000000);
 const DatabaseManager: IDatabaseManager = {
     async init() {
         if (db.isOpen()) {
@@ -45,10 +47,11 @@ const DatabaseManager: IDatabaseManager = {
         db.on("populate", async function() {
             // Init your DB with some default statuses:
             const ids = [];
-            ids.push(await db.players.add({ name: "Sam" }));
-            ids.push(await db.players.add({ name: "Aaron" }));
-            ids.push(await db.players.add({ name: "Derrick" }));
-            ids.push(await db.players.add({ name: "Eden" }));
+            DatabaseManager.addPlayer;
+            ids.push(await DatabaseManager.addPlayer("Sam"));
+            ids.push(await DatabaseManager.addPlayer("Aaron"));
+            ids.push(await DatabaseManager.addPlayer("Derrick"));
+            ids.push(await DatabaseManager.addPlayer("Eden"));
             await db.games.add({
                 history: [
                     [1, 2, 3, 4],
@@ -57,7 +60,7 @@ const DatabaseManager: IDatabaseManager = {
                 numRaces: 8,
                 players: ids
             });
-            db.datapoints.add({ gameId: -1, playerId: 1, x: 0, y: 12 });
+            db.datapoints.add({ gameId: "", playerId: "1", x: 0, y: 12 });
         });
 
         return db.open();
@@ -66,8 +69,11 @@ const DatabaseManager: IDatabaseManager = {
         return db.players.toArray();
     },
 
-    async getGameById(id: number) {
-        return db.games.get(id);
+    async getGameById(id: string) {
+        return db.games
+            .where("_id")
+            .equals(+id)
+            .first();
     },
     async getAllGames(includeFinished: boolean = false) {
         const games = await db.games.toArray();
@@ -77,24 +83,32 @@ const DatabaseManager: IDatabaseManager = {
         return games.filter(g => g.history.length < g.numRaces);
     },
     async newGame(game: IGame) {
-        return await db.games.add(game);
+        const randomid = getRandomId();
+        game._id = randomid;
+        await db.games.add(game);
+        return randomid;
     },
-    async updateGameHistory(gameId: number, history: number[][]) {
-        return db.games.update(gameId, { history });
+    async updateGameHistory(gameId: string, history: number[][]) {
+        return "" + (await db.games.update(+gameId, { history }));
     },
     async putGame(game: IGame) {
-        return db.games.put(game);
+        return "" + (await db.games.put(game));
     },
     async addPlayer(name: string) {
-        return db.players.add({ name });
+        const randomid = getRandomId();
+        await db.players.add({ name, _id: randomid });
+        return randomid;
     },
-    async getPlayerById(id: number) {
-        return db.players.get(id);
+    async getPlayerById(id: string) {
+        return await db.players
+            .where("_id")
+            .equals(id)
+            .first();
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return db.datapoints.add(dataPoint);
+        return "" + (await db.datapoints.add(dataPoint));
     },
-    async getDataPointsByPlayer(playerId: number) {
+    async getDataPointsByPlayer(playerId: string) {
         return db.datapoints
             .where("playerId")
             .equals(playerId)
@@ -104,7 +118,7 @@ const DatabaseManager: IDatabaseManager = {
         if (!game._id) {
             return;
         }
-        await db.games.delete(game._id);
+        await db.games.delete(+game._id);
         await db.datapoints
             .where("gameId")
             .equals(game._id)
