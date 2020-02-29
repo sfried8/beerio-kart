@@ -24,12 +24,9 @@
                     Enter race {{ roundNumber + 1 }} results
                 </button>
             </div>
-            <point-place-component
-                :chart-data="chartData"
-                :styles="{
-                    position: 'relative',
-                    height: '500px'
-                }"
+            <point-place-graph-component
+                :players="players"
+                :datasets="game.datasets"
             />
         </div>
     </div>
@@ -44,13 +41,13 @@ import DatabaseManager from "../MongoDatabaseManager";
 
 import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
-import PointPlaceComponent from "./PointPlaceGraphComponent";
+import PointPlaceGraphComponent from "./PointPlaceGraphComponent.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGameData } from "../DatabaseManager";
 
 @Component({
     components: {
-        PointPlaceComponent,
+        PointPlaceGraphComponent,
         PlayerComponent
     }
 })
@@ -118,51 +115,6 @@ export default class KartGame extends Vue {
         return this.playersFromDatabase.filter(
             n => !this.players.some(p => p._id === n._id)
         );
-    }
-    get chartData() {
-        const trendlines: any[] = [];
-        if (!this.game) {
-            return { datasets: [] };
-        }
-        this.game.datasets.forEach((d, i) => {
-            const playerAverages: number[][] = [];
-            d.forEach(h => {
-                if (!playerAverages[h.x]) {
-                    playerAverages[h.x] = [];
-                }
-                playerAverages[h.x].push(h.y);
-            });
-            const playerTrendlines = [];
-
-            for (let i = 0; i < playerAverages.length; i++) {
-                if (i in playerAverages) {
-                    playerTrendlines.push({
-                        x: i,
-                        y: Util.average(playerAverages[i])
-                    });
-                }
-            }
-            trendlines.push({
-                label: "remove",
-                data: playerTrendlines,
-                backgroundColor: this.players[i].playerColor,
-                borderColor: this.players[i].playerColor,
-                fill: false,
-                pointHitRadius: 0.01,
-                type: "line"
-            });
-        });
-        return {
-            datasets: [
-                ...this.players.map((p, i) => ({
-                    label: p.name,
-                    data: this.game ? this.game.datasets[i] : [],
-                    backgroundColor: p.playerColor,
-                    pointRadius: 6
-                })),
-                ...trendlines
-            ]
-        };
     }
 }
 </script>
