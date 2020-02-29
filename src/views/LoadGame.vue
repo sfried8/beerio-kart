@@ -7,9 +7,9 @@
         /><label for="showFinishedGames">Show Finished Games</label>
         <existing-game-option-component
             v-for="g in gamesToShow"
-            :key="g._id"
-            @load="loadGame(g)"
-            @delete="deleteGame(g)"
+            :key="g.game._id"
+            @load="loadGame(g.game)"
+            @delete="deleteGame(g.game)"
             v-bind.sync="g"
         ></existing-game-option-component>
     </div>
@@ -20,6 +20,7 @@ import DatabaseManager from "../MongoDatabaseManager";
 
 import Game, { IGame } from "../models/Game";
 import { Component, Prop, Vue } from "vue-property-decorator";
+import { IGameData } from "../DatabaseManager";
 
 @Component({
     components: {
@@ -27,14 +28,14 @@ import { Component, Prop, Vue } from "vue-property-decorator";
     }
 })
 export default class LoadGame extends Vue {
-    allExistingGames: IGame[] = [];
-    inProgressGames: IGame[] = [];
+    allExistingGames: IGameData[] = [];
+    inProgressGames: IGameData[] = [];
     showFinishedGames: boolean = false;
     async mounted() {
         await DatabaseManager.init();
         this.allExistingGames = await DatabaseManager.getAllGames(true);
         this.inProgressGames = this.allExistingGames.filter(
-            g => !g.history || g.numRaces > g.history.length
+            g => !g.game.history || g.game.numRaces > g.game.history.length
         );
     }
     get gamesToShow() {
@@ -53,10 +54,10 @@ export default class LoadGame extends Vue {
         ) {
             await DatabaseManager.deleteGame(gameToDelete);
             this.inProgressGames = this.inProgressGames.filter(
-                g => g !== gameToDelete
+                g => g.game !== gameToDelete
             );
             this.allExistingGames = this.allExistingGames.filter(
-                g => g !== gameToDelete
+                g => g.game !== gameToDelete
             );
         }
     }

@@ -14,6 +14,7 @@ import Player from "../models/Player";
 import { KeypadPrompt } from "@/components/KeypadPrompt";
 import Vue from "vue";
 import DatabaseManager from "../MongoDatabaseManager";
+import { IGameData } from "@/DatabaseManager";
 export default class Game {
     public raceResults: number[];
     public roundNumber: number = -1;
@@ -42,17 +43,17 @@ export default class Game {
             date: new Date()
         }).then(id => {
             this._id = id;
-            this.players.forEach((p, i) => {
-                DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
-                    Vue.set(
-                        this.datasets,
-                        i,
-                        dps
-                            .filter(dp => dp.gameId != this._id)
-                            .map(({ x, y }) => ({ x, y }))
-                    );
-                });
-            });
+            // this.players.forEach((p, i) => {
+            //     DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
+            //         Vue.set(
+            //             this.datasets,
+            //             i,
+            //             dps
+            //                 .filter(dp => dp.gameId != this._id)
+            //                 .map(({ x, y }) => ({ x, y }))
+            //         );
+            //     });
+            // });
         });
     }
     repopulateHistory() {
@@ -66,15 +67,15 @@ export default class Game {
         this.roundNumber = 0;
 
         this.datasets.forEach(d => d.splice(0, d.length));
-        this.players.forEach((p, i) => {
-            DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
-                Vue.set(
-                    this.datasets,
-                    i,
-                    dps.map(({ x, y }) => ({ x, y }))
-                );
-            });
-        });
+        // this.players.forEach((p, i) => {
+        //     DatabaseManager.getDataPointsByPlayer(p._id || "").then(dps => {
+        //         Vue.set(
+        //             this.datasets,
+        //             i,
+        //             dps.map(({ x, y }) => ({ x, y }))
+        //         );
+        //     });
+        // });
         this.players.forEach((p, i) => {
             p.currentRoundPoints.clear();
             p.extraDict = [];

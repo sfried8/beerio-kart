@@ -46,6 +46,7 @@ import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
 import PointPlaceComponent from "./PointPlaceGraphComponent";
 import { Component, Prop, Vue } from "vue-property-decorator";
+import { IGameData } from "../DatabaseManager";
 
 @Component({
     components: {
@@ -76,23 +77,16 @@ export default class KartGame extends Vue {
         await this.game.init();
         this.game.startGame();
     }
-    loadGame(gameToLoad: IGame) {
-        this.players = gameToLoad.players.map(
-            playerId =>
-                new Player(
-                    this.playersFromDatabase.find(
-                        player => player._id === playerId
-                    ) || { name: "uh-oh" }
-                )
-        );
-        this.numRaces = gameToLoad.numRaces;
+    loadGame(gameToLoad: IGameData) {
+        this.players = gameToLoad.players.map(player => new Player(player));
+        this.numRaces = gameToLoad.game.numRaces;
         this.game = new Game(
             this.players,
             this.numRaces,
-            gameToLoad.history,
-            gameToLoad._id
+            gameToLoad.game.history,
+            gameToLoad.game._id
         );
-        if (!gameToLoad.history || gameToLoad.history.length === 0) {
+        if (!gameToLoad.game.history || gameToLoad.game.history.length === 0) {
             this.game.startGame();
         }
     }

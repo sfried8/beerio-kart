@@ -3,6 +3,12 @@ import { IPlayer } from "./models/Player";
 import { IGame } from "./models/Game";
 import { IDataPoint } from "./models/DataPoint";
 
+export interface IGameData {
+    game: IGame;
+    players: IPlayer[];
+    datapoints?: IDataPoint[];
+}
+
 class KartDatabase extends Dexie {
     players: Dexie.Table<IPlayer, number>;
     games: Dexie.Table<IGame, number>;
@@ -25,8 +31,8 @@ export interface IDatabaseManager {
     init(): Promise<any>;
     getPlayers(): Promise<IPlayer[]>;
 
-    getGameById(id: string): Promise<IGame | undefined>;
-    getAllGames(includeFinished: boolean): Promise<IGame[]>;
+    getGameById(id: string): Promise<IGameData | undefined>;
+    getAllGames(includeFinished: boolean): Promise<IGameData[]>;
     newGame(game: IGame): Promise<string>;
     updateGameHistory(gameId: string, history: number[][]): Promise<string>;
     putGame(game: IGame): Promise<string>;
@@ -70,17 +76,42 @@ const DatabaseManager: IDatabaseManager = {
     },
 
     async getGameById(id: string) {
-        return db.games
+        const game = await db.games
             .where("_id")
             .equals(+id)
             .first();
+        if (!game) {
+            return;
+        }
+        const players = await db.players
+            .where("_id")
+            .anyOf(game.players)
+            .toArray();
+        const datapoints = await db.datapoints
+            .where("gameId")
+            .equals(id)
+            .toArray();
+        return { game, players, datapoints };
     },
     async getAllGames(includeFinished: boolean = false) {
+        const gamedatalist = [];
+
         const games = await db.games.toArray();
-        if (includeFinished) {
-            return games;
+        for (const game of games) {
+            if (!includeFinished && game.history.length >= game.numRaces) {
+                continue;
+            }
+            const players = await db.players
+                .where("_id")
+                .anyOf(game.players)
+                .toArray();
+            const datapoints = await db.datapoints
+                .where("gameId")
+                .equals(game._id || "")
+                .toArray();
+            gamedatalist.push({ game, players, datapoints });
         }
-        return games.filter(g => g.history.length < g.numRaces);
+        return gamedatalist;
     },
     async newGame(game: IGame) {
         const randomid = getRandomId();

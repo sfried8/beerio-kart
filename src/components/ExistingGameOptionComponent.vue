@@ -1,18 +1,20 @@
 <template>
     <div class="recent-game" @click="$emit('load')">
-        <div class="existing-option-id">#{{ _id }}</div>
+        <div class="existing-option-id">#{{ game._id }}</div>
         <div
             class="existing-option-delete"
             @click.stop.prevent="$emit('delete')"
         >
             {{ deleteContent }}
         </div>
-        <div>{{ dateString }}</div>
-        <div>
-            {{ playerNameString }}
-        </div>
-        <div>
-            {{ progressString }}
+        <div class="existing-option-data">
+            <div>{{ dateString }}</div>
+            <div>
+                {{ playerNameString }}
+            </div>
+            <div>
+                {{ progressString }}
+            </div>
         </div>
     </div>
 </template>
@@ -20,36 +22,27 @@
 <script lang="ts">
 import DatabaseManager from "../MongoDatabaseManager";
 import { Component, Prop, Vue } from "vue-property-decorator";
+import { IPlayer } from "../models/Player";
+import { IGame } from "../models/Game";
 @Component
 export default class ExistingGameOptionComponent extends Vue {
-    @Prop() public _id!: string;
-    @Prop() public players!: string[];
-    @Prop() public numRaces!: number;
-    @Prop() public history!: number[][];
-    @Prop() public date!: Date;
-    public playerNames: string[] = [];
-    async mounted() {
-        for (const playerId of this.players) {
-            const player = await DatabaseManager.getPlayerById(playerId);
-            if (player) {
-                this.playerNames.push(player.name);
-            }
-        }
-    }
+    @Prop() public players!: IPlayer[];
+    @Prop() public game!: IGame;
+
     get playerNameString() {
-        return this.playerNames.join(", ");
+        return this.players.map(p => p.name).join(", ");
     }
     get progressString() {
         return (
-            (this.history ? this.history.length : 0) +
+            (this.game.history ? this.game.history.length : 0) +
             "/" +
-            this.numRaces +
+            this.game.numRaces +
             " races"
         );
     }
     get dateString() {
-        if (this.date) {
-            return this.date.toLocaleString("en-US");
+        if (this.game.date) {
+            return this.game.date.toLocaleString("en-US");
         }
         return "";
     }
@@ -78,5 +71,8 @@ export default class ExistingGameOptionComponent extends Vue {
     border-radius: 1vh;
     min-width: 300px;
     width: 30vw;
+}
+.existing-option-data {
+    margin: 2vh auto 1vh auto;
 }
 </style>

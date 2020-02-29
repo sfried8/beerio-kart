@@ -1,4 +1,4 @@
-import DatabaseManager, { IDatabaseManager } from "./DatabaseManager";
+import { IDatabaseManager, IGameData } from "./DatabaseManager";
 import { IDataPoint } from "./models/DataPoint";
 import { IGame } from "./models/Game";
 
@@ -21,7 +21,9 @@ const MongoDatabaseManager: IDatabaseManager = {
         if (includeFinished) {
             return games;
         }
-        return games.filter((g: IGame) => g.history.length < g.numRaces);
+        return games.filter(
+            (g: IGameData) => g.game.history.length < g.game.numRaces
+        );
     },
     async newGame(game: IGame) {
         return (
@@ -44,7 +46,14 @@ const MongoDatabaseManager: IDatabaseManager = {
         ).json();
     },
     async putGame(game: IGame) {
-        return "0"; //db.games.put(game);
+        const { _id, ...updates } = game;
+        return await (
+            await fetch(url + "/game/" + _id, {
+                body: JSON.stringify(updates),
+                method: "PUT",
+                headers: { "Content-type": "application/json" }
+            })
+        ).json();
     },
     async addPlayer(name: string) {
         return await (
@@ -59,14 +68,17 @@ const MongoDatabaseManager: IDatabaseManager = {
         return (await fetch(url + "/player/" + id)).json();
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return "0"; //db.datapoints.add(dataPoint);
+        return await (
+            await fetch(url + "/datapoint", {
+                body: JSON.stringify(dataPoint),
+                method: "POST",
+                headers: { "Content-type": "application/json" }
+            })
+        ).json();
     },
     async getDataPointsByPlayer(playerId: string) {
-        // return db.datapoints
-        //     .where("playerId")
-        //     .equals(playerId)
-        //     .toArray();
-        return [];
+        const json = await fetch(url + "/datapoints?player=" + playerId);
+        return json.json();
     },
     async deleteGame(game: IGame) {
         if (!game._id) {
