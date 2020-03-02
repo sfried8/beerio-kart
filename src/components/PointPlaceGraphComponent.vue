@@ -4,6 +4,7 @@
         <label for="showhistory">Show history?</label>
         <point-place-scatter
             :chart-data="chartData"
+            :courseNames="courseNames"
             :styles="{
                 position: 'relative',
                 height: '500px'
@@ -22,6 +23,8 @@ import Game, { IGame } from "../models/Game";
 import PointPlaceScatter from "./PointPlaceScatter";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGameData } from "../DatabaseManager";
+import Course from "../models/Course";
+import { IDataPoint } from "../models/DataPoint";
 
 @Component({
     components: {
@@ -32,19 +35,20 @@ export default class PointPlaceGraphComponent extends Vue {
     showHistory: boolean = false;
 
     @Prop() players!: Player[];
-    @Prop() datasets!: { x: number; y: number }[][];
-    historyDatasets: { x: number; y: number }[][] = [];
+    @Prop() datasets!: IDataPoint[][];
+    @Prop() gameId!: string;
+    historyDatasets: IDataPoint[][] = [];
     async mounted() {
         const data = [];
         for (const player of this.players) {
             const dps = await DatabaseManager.getDataPointsByPlayer(
                 player._id || ""
             );
-            data.push(dps.map(({ x, y }) => ({ x, y })));
+            data.push(dps.filter(dp => dp.gameId !== this.gameId));
         }
         this.historyDatasets = data;
     }
-    get allDatasets(): { x: number; y: number }[][] {
+    get allDatasets(): IDataPoint[][] {
         if (this.showHistory) {
             return this.historyDatasets.map((ds, i) => [
                 ...ds,
@@ -98,6 +102,11 @@ export default class PointPlaceGraphComponent extends Vue {
                 ...trendlines
             ]
         };
+    }
+    get courseNames() {
+        return this.allDatasets.map(d =>
+            d.map(dp => Course[dp.course || 0].label)
+        );
     }
 }
 </script>

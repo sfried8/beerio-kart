@@ -1,5 +1,6 @@
 import { Scatter, mixins } from "vue-chartjs";
 import Vue from "vue";
+import { addNumberEnding } from "@/Util";
 const { reactiveProp } = mixins;
 const newLegendClickHandler = function(e: any, legendItem: any) {
     var index = legendItem.datasetIndex;
@@ -15,7 +16,9 @@ const newLegendClickHandler = function(e: any, legendItem: any) {
     });
     ci.update();
 };
+
 export default Vue.extend({
+    props: { courseNames: { type: Array as () => String[][] } },
     extends: Scatter,
     mixins: [reactiveProp],
     mounted() {
@@ -71,6 +74,17 @@ export default Vue.extend({
                         return (
                             data.datasets[item.datasetIndex].label !== "remove"
                         );
+                    },
+                    callbacks: {
+                        label: (tooltipItem: any, data: any) => {
+                            return `${
+                                this.courseNames[tooltipItem.datasetIndex][
+                                    tooltipItem.index
+                                ]
+                            } ${addNumberEnding(tooltipItem.yLabel)} place (${
+                                tooltipItem.xLabel
+                            } points)`;
+                        }
                     }
                 }
             }

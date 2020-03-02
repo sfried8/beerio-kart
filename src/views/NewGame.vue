@@ -41,6 +41,7 @@ export default class NewGame extends Vue {
         const gameId = await DatabaseManager.newGame({
             players: this.players.map(({ _id }) => _id!),
             numRaces: this.numRaces,
+            courseHistory: [],
             history: [],
             date: new Date()
         });

@@ -9,20 +9,24 @@ export interface IGame {
     players: string[];
     numRaces: number;
     history: number[][];
+    courseHistory: number[];
 }
 import Player from "../models/Player";
-import { KeypadPrompt } from "@/components/KeypadPrompt";
+import { KeypadPrompt, CoursePrompt } from "@/components/PromptManager";
 import Vue from "vue";
 import DatabaseManager from "../MongoDatabaseManager";
 import { IGameData } from "@/DatabaseManager";
+import { IDataPoint } from "./DataPoint";
 export default class Game {
     public roundNumber: number = -1;
-    public datasets: { x: number; y: number }[][] = [];
+    public datasets: IDataPoint[][] = [];
+
     public _id?: string;
     constructor(
         public players: Player[] = [],
         public numRaces: number = 8,
         public history: number[][] = [],
+        public courseHistory: number[] = [],
         existingId?: string
     ) {
         this.datasets = players.map(p => []);
@@ -38,13 +42,16 @@ export default class Game {
             players: this.players.map(({ _id: id }) => "" + id!),
             numRaces: this.numRaces,
             history: this.history,
+            courseHistory: this.courseHistory,
             date: new Date()
         });
     }
     repopulateHistory() {
         this.startGame();
-        for (const historyItem of this.history) {
-            this.round([...historyItem], true);
+        for (let i = 0; i < this.history.length; i++) {
+            const historyItem = this.history[i];
+            const course = this.courseHistory[i];
+            this.round(course, [...historyItem], true);
         }
     }
     startGame() {
@@ -59,22 +66,27 @@ export default class Game {
             p.numPlayers = this.players.length;
         });
     }
-    round(raceResults: number[], isUndoing: boolean = false) {
+    round(course: number, raceResults: number[], isUndoing: boolean = false) {
         this.roundNumber += 1;
-
+        this.courseHistory.push(course);
         const lastPlace = Math.max(...raceResults);
+        const datapointsToSave = [];
         for (let i = 0; i < this.players.length; i++) {
             const p = this.players[i];
 
             const addedPoints = raceResults[i];
-            const dataPoint = { x: p.totalPoints(), y: addedPoints };
+            const dataPoint: IDataPoint = {
+                x: p.totalPoints(),
+                y: addedPoints,
+                course,
+                gameId: this._id || "",
+                playerId: p._id || ""
+            };
 
-            if (!isUndoing && this._id && p._id) {
-                DatabaseManager.addDataPoint({
-                    ...dataPoint,
-                    gameId: this._id,
-                    playerId: p._id
-                });
+            if (!isUndoing) {
+                DatabaseManager.addDataPoint(dataPoint).then(
+                    id => (dataPoint._id = id)
+                );
             }
             this.datasets[i].push(dataPoint);
             p.points.combineGroup(p.currentRoundPoints);
@@ -108,22 +120,40 @@ export default class Game {
     }
     undo() {
         this.history.pop();
+        const course = this.courseHistory.pop();
+        const pointsToDelete = [];
+        for (let i = 0; i < this.datasets.length; i++) {
+            const dataset = this.datasets[i];
+            for (let j = dataset.length - 1; j >= 0; j--) {
+                const point = dataset[j];
+                if (point.course === course) {
+                    dataset.splice(j, 1);
+                    pointsToDelete.push(point);
+                }
+            }
+        }
+        DatabaseManager.deleteDataPoints(pointsToDelete);
         this.repopulateHistory();
         printScores(this.players);
     }
     saveGame() {
         if (this._id) {
-            DatabaseManager.updateGameHistory(this._id, this.history);
+            DatabaseManager.updateGameHistory(
+                this._id,
+                this.history,
+                this.courseHistory
+            );
         }
     }
     async promptAll() {
+        const course = await CoursePrompt(this.history.length + 1);
         const raceResults = [];
         for (let i = 0; i < this.players.length; i++) {
             const p = this.players[i];
             raceResults[i] = await KeypadPrompt(p.name);
         }
         this.history.push([...raceResults]);
-        this.round(raceResults);
+        this.round(course, raceResults);
     }
     get kanpaiPoints() {
         if (+this.numRaces <= 4) {

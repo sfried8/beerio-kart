@@ -34,13 +34,19 @@ export interface IDatabaseManager {
     getGameById(id: string): Promise<IGameData | undefined>;
     getAllGames(includeFinished: boolean): Promise<IGameData[]>;
     newGame(game: IGame): Promise<string>;
-    updateGameHistory(gameId: string, history: number[][]): Promise<string>;
+    updateGameHistory(
+        gameId: string,
+        history: number[][],
+        courseHistory: number[]
+    ): Promise<string>;
     putGame(game: IGame): Promise<string>;
     addPlayer(name: string): Promise<string>;
     getPlayerById(id: string): Promise<IPlayer | undefined>;
     addDataPoint(dataPoint: IDataPoint): Promise<string>;
     getDataPointsByPlayer(playerId: string): Promise<IDataPoint[]>;
     deleteGame(game: IGame): Promise<any>;
+    deleteDataPoint(dataPoint: IDataPoint): Promise<any>;
+    deleteDataPoints(dataPoints: IDataPoint[]): Promise<any>;
 }
 
 const getRandomId = () =>
@@ -52,21 +58,22 @@ const DatabaseManager: IDatabaseManager = {
         }
         db.on("populate", async function() {
             // Init your DB with some default statuses:
-            const ids = [];
-            DatabaseManager.addPlayer;
-            ids.push(await DatabaseManager.addPlayer("Sam"));
-            ids.push(await DatabaseManager.addPlayer("Aaron"));
-            ids.push(await DatabaseManager.addPlayer("Derrick"));
-            ids.push(await DatabaseManager.addPlayer("Eden"));
-            await db.games.add({
-                history: [
-                    [1, 2, 3, 4],
-                    [2, 3, 4, 5]
-                ],
-                numRaces: 8,
-                players: ids
-            });
-            db.datapoints.add({ gameId: "", playerId: "1", x: 0, y: 12 });
+            // const ids = [];
+            // DatabaseManager.addPlayer;
+            // ids.push(await DatabaseManager.addPlayer("Sam"));
+            // ids.push(await DatabaseManager.addPlayer("Aaron"));
+            // ids.push(await DatabaseManager.addPlayer("Derrick"));
+            // ids.push(await DatabaseManager.addPlayer("Eden"));
+            // await db.games.add({
+            //     history: [
+            //         [1, 2, 3, 4],
+            //         [2, 3, 4, 5]
+            //     ],
+            //     numRaces: 8,
+            //     courseHistory:[],
+            //     players: ids
+            // });
+            // db.datapoints.add({ gameId: "", playerId: "1", x: 0, y: 12 });
         });
 
         return db.open();
@@ -119,7 +126,11 @@ const DatabaseManager: IDatabaseManager = {
         await db.games.add(game);
         return randomid;
     },
-    async updateGameHistory(gameId: string, history: number[][]) {
+    async updateGameHistory(
+        gameId: string,
+        history: number[][],
+        courseHistory: number[]
+    ) {
         return "" + (await db.games.update(+gameId, { history }));
     },
     async putGame(game: IGame) {
@@ -154,6 +165,15 @@ const DatabaseManager: IDatabaseManager = {
             .where("gameId")
             .equals(game._id)
             .delete();
+    },
+    async deleteDataPoint(dataPoint: IDataPoint) {
+        if (dataPoint._id) {
+            db.datapoints.delete(+dataPoint._id);
+        }
+    },
+    async deleteDataPoints(dataPoints: IDataPoint[]) {
+        // const ids = dataPoints.map(dp=>dp._id).filter(id=>id);
+        // db.datapoints.delete(+dataPoint._id);
     }
 };
 export default DatabaseManager;

@@ -25,7 +25,9 @@
                 </button>
             </div>
             <point-place-graph-component
+                v-if="game"
                 :players="players"
+                :gameId="game._id"
                 :datasets="game.datasets"
             />
         </div>
@@ -34,7 +36,7 @@
 
 <script lang="ts">
 /* eslint-disable */
-import { KeypadPrompt } from "./KeypadPrompt";
+import { KeypadPrompt } from "./PromptManager";
 import * as Util from "../Util";
 import PlayerComponent from "./PlayerComponent.vue";
 import DatabaseManager from "../MongoDatabaseManager";
@@ -81,6 +83,7 @@ export default class KartGame extends Vue {
             this.players,
             this.numRaces,
             gameToLoad.game.history,
+            gameToLoad.game.courseHistory,
             gameToLoad.game._id
         );
         if (!gameToLoad.game.history || gameToLoad.game.history.length === 0) {

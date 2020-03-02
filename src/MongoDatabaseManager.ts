@@ -36,10 +36,14 @@ const MongoDatabaseManager: IDatabaseManager = {
             ).json()
         )._id;
     },
-    async updateGameHistory(gameId: string, history: number[][]) {
+    async updateGameHistory(
+        gameId: string,
+        history: number[][],
+        courseHistory: number[]
+    ) {
         return await (
             await fetch(url + "/game/" + gameId, {
-                body: JSON.stringify({ history }),
+                body: JSON.stringify({ history, courseHistory }),
                 method: "PUT",
                 headers: { "Content-type": "application/json" }
             })
@@ -68,13 +72,15 @@ const MongoDatabaseManager: IDatabaseManager = {
         return (await fetch(url + "/player/" + id)).json();
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return await (
-            await fetch(url + "/datapoint", {
-                body: JSON.stringify(dataPoint),
-                method: "POST",
-                headers: { "Content-type": "application/json" }
-            })
-        ).json();
+        return (
+            await (
+                await fetch(url + "/datapoint", {
+                    body: JSON.stringify(dataPoint),
+                    method: "POST",
+                    headers: { "Content-type": "application/json" }
+                })
+            ).json()
+        )._id;
     },
     async getDataPointsByPlayer(playerId: string) {
         const json = await fetch(url + "/datapoints?player=" + playerId);
@@ -85,6 +91,20 @@ const MongoDatabaseManager: IDatabaseManager = {
             return;
         }
         await fetch(url + "/game/" + game._id, {
+            method: "DELETE"
+        });
+    },
+    async deleteDataPoint(dataPoint: IDataPoint) {
+        if (!dataPoint._id) {
+            return;
+        }
+        await fetch(url + "/DataPoint/" + dataPoint._id, {
+            method: "DELETE"
+        });
+    },
+    async deleteDataPoints(dataPoints: IDataPoint[]) {
+        const ids = dataPoints.map(dp => dp._id).filter(id => id);
+        await fetch(url + "/DataPoints?ids=" + ids.join(","), {
             method: "DELETE"
         });
     }
