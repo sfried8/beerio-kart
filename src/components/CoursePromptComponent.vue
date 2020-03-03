@@ -25,7 +25,7 @@ export default class CoursePromptComponent extends Vue {
     }
     async mounted() {
         await this.$nextTick();
-        this.$refs.courseSelect.$refs.search.focus();
+        (this.$refs.courseSelect as any).$refs.search.focus();
     }
     async onSelected(value: { id: number }) {
         await this.$nextTick();
