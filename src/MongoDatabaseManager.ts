@@ -2,7 +2,7 @@ import { IDatabaseManager, IGameData } from "./DatabaseManager";
 import { IDataPoint } from "./models/DataPoint";
 import { IGame } from "./models/Game";
 
-const url = "http://localhost:4000";
+const url = "https://beerio-kart-server.herokuapp.com";
 const MongoDatabaseManager: IDatabaseManager = {
     async init() {
         return true;

@@ -9,7 +9,7 @@
                 class="choose-course-select"
                 :options="options"
                 placeholder="Search"
-                @input="value => $emit('selected', value.id)"
+                @input="onSelected"
             />
         </div>
     </div>
@@ -26,6 +26,10 @@ export default class CoursePromptComponent extends Vue {
     async mounted() {
         await this.$nextTick();
         this.$refs.courseSelect.$refs.search.focus();
+    }
+    async onSelected(value: { id: number }) {
+        await this.$nextTick();
+        this.$emit("selected", value.id);
     }
 }
 </script>

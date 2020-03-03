@@ -6,6 +6,7 @@
                 multiple
                 v-model="players"
                 :options="availableOptions"
+                :create-option="name => ({ name })"
                 label="name"
                 placeholder="Add Player"
             />
