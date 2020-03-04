@@ -30,6 +30,11 @@
                 :gameId="game._id"
                 :datasets="game.datasets"
             />
+            <game-history-component
+                v-if="game"
+                :game="game"
+                :players="players"
+            />
         </div>
     </div>
 </template>
@@ -44,12 +49,14 @@ import DatabaseManager from "../MongoDatabaseManager";
 import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
 import PointPlaceGraphComponent from "./PointPlaceGraphComponent.vue";
+import GameHistoryComponent from "./GameHistoryComponent.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGameData } from "../DatabaseManager";
 
 @Component({
     components: {
         PointPlaceGraphComponent,
+        GameHistoryComponent,
         PlayerComponent
     }
 })
