@@ -19,9 +19,14 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import Course from "../models/Course";
 @Component
 export default class CoursePromptComponent extends Vue {
-    @Prop() private title!: string;
+    @Prop() private courseHistory!: number[];
     get options(): { label: string; id: number }[] {
-        return Object.values(Course);
+        return Object.values(Course).filter(
+            c => this.courseHistory && !this.courseHistory.includes(c.id)
+        );
+    }
+    get title() {
+        return `Choose course for race ${this.courseHistory.length + 1}`;
     }
     async mounted() {
         await this.$nextTick();

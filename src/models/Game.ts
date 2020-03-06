@@ -68,7 +68,9 @@ export default class Game {
     }
     round(course: number, raceResults: number[], isUndoing: boolean = false) {
         this.roundNumber += 1;
-        this.courseHistory.push(course);
+        if (!isUndoing) {
+            this.courseHistory.push(course);
+        }
         const lastPlace = Math.max(...raceResults);
         const datapointsToSave = [];
         for (let i = 0; i < this.players.length; i++) {
@@ -146,11 +148,14 @@ export default class Game {
         }
     }
     async promptAll() {
-        const course = await CoursePrompt(this.history.length + 1);
+        const course = await CoursePrompt(this.courseHistory);
         const raceResults = [];
         for (let i = 0; i < this.players.length; i++) {
             const p = this.players[i];
-            raceResults[i] = await KeypadPrompt(p.name);
+            raceResults[i] = await KeypadPrompt(
+                p.name,
+                this.history.map(t => t[i])
+            );
         }
         this.history.push([...raceResults]);
         this.round(course, raceResults);

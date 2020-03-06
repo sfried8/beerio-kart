@@ -24,16 +24,17 @@
                     Enter race {{ roundNumber + 1 }} results
                 </button>
             </div>
+            <game-history-component
+                v-if="game"
+                :game="game"
+                :players="players"
+            />
+            <br />
             <point-place-graph-component
                 v-if="game"
                 :players="players"
                 :gameId="game._id"
                 :datasets="game.datasets"
-            />
-            <game-history-component
-                v-if="game"
-                :game="game"
-                :players="players"
             />
         </div>
     </div>

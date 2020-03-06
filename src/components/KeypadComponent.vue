@@ -7,8 +7,8 @@
             <div
                 class="keypad-button"
                 :key="x"
-                v-for="x in 12"
-                @click="$emit('selected', x)"
+                v-for="(x, i) in valuesToShow"
+                @click="$emit('selected', i + 1)"
             >
                 <span>{{ x }}</span>
             </div>
@@ -18,9 +18,17 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 
+const places = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const points = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 @Component
 export default class KeypadComponent extends Vue {
     @Prop() private title!: string;
+    @Prop() private startingScore!: number;
+    get valuesToShow() {
+        return points.map(
+            (p, i) => i + 1 + " (" + (p + this.startingScore) + ")"
+        );
+    }
 }
 </script>
 
@@ -35,10 +43,10 @@ export default class KeypadComponent extends Vue {
 }
 .keypad {
     position: absolute;
-    left: 25%;
-    top: 25%;
-    width: 50%;
-    height: 50%;
+    left: 20%;
+    top: 20%;
+    width: 60%;
+    height: 60%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
