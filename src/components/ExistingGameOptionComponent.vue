@@ -42,7 +42,7 @@ export default class ExistingGameOptionComponent extends Vue {
     }
     get dateString() {
         if (this.game.date) {
-            return this.game.date.toLocaleString("en-US");
+            return new Date(this.game.date).toLocaleString();
         }
         return "";
     }

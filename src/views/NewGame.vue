@@ -8,12 +8,16 @@
                 :options="availableOptions"
                 :create-option="name => ({ name })"
                 label="name"
+                @input="limitSelections"
                 placeholder="Add Player"
             />
         </div>
+        <div style="margin:3vh">
+            <label for="numraces">Number of races: </label>
+            <input name="numraces" v-model="numRaces" />
+        </div>
         <div>
-            <input v-model="numRaces" />
-            <button v-if="players.length" @click="startGame">start</button>
+            <button v-if="players.length" @click="startGame">Start Game</button>
         </div>
     </div>
 </template>
@@ -52,6 +56,11 @@ export default class NewGame extends Vue {
         return this.playersFromDatabase.filter(
             n => !this.players.some(p => p._id === n._id)
         );
+    }
+    limitSelections(e: IPlayer[]) {
+        if (e.length > 4) {
+            e.pop();
+        }
     }
 }
 </script>
