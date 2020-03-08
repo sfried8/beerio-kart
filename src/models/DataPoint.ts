@@ -3,6 +3,7 @@ export interface IDataPoint {
     playerId: string;
     gameId: string;
     course?: number;
+    date?: Date | string;
     x: number;
     y: number;
 }

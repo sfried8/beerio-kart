@@ -18,7 +18,10 @@ const newLegendClickHandler = function(e: any, legendItem: any) {
 };
 
 export default Vue.extend({
-    props: { courseNames: { type: Array as () => String[][] } },
+    props: {
+        courseNames: { type: Array as () => String[][] },
+        pointDates: { type: Array as () => String[][] }
+    },
     extends: Scatter,
     mixins: [reactiveProp],
     mounted() {
@@ -83,7 +86,11 @@ export default Vue.extend({
                                 ]
                             } ${addNumberEnding(tooltipItem.yLabel)} place (${
                                 tooltipItem.xLabel
-                            } points)`;
+                            } points) ${
+                                this.pointDates[tooltipItem.datasetIndex][
+                                    tooltipItem.index
+                                ]
+                            }`;
                         }
                     }
                 }

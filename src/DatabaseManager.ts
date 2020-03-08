@@ -8,6 +8,11 @@ export interface IGameData {
     players: IPlayer[];
     datapoints?: IDataPoint[];
 }
+export interface IPlayerData {
+    player: IPlayer;
+    games: IGame[];
+    datapoints?: IDataPoint[];
+}
 
 class KartDatabase extends Dexie {
     players: Dexie.Table<IPlayer, number>;
@@ -41,8 +46,8 @@ export interface IDatabaseManager {
     ): Promise<string>;
     putGame(game: IGame): Promise<string>;
     addPlayer(name: string): Promise<string>;
-    getPlayerById(id: string): Promise<IPlayer | undefined>;
-    addDataPoint(dataPoint: IDataPoint): Promise<string>;
+    getPlayerById(id: string): Promise<IPlayerData | undefined>;
+    addDataPoint(dataPoint: IDataPoint): Promise<IDataPoint>;
     getDataPointsByPlayer(playerId: string): Promise<IDataPoint[]>;
     deleteGame(game: IGame): Promise<any>;
     deleteDataPoint(dataPoint: IDataPoint): Promise<any>;
@@ -142,13 +147,25 @@ const DatabaseManager: IDatabaseManager = {
         return randomid;
     },
     async getPlayerById(id: string) {
-        return await db.players
+        const player = await db.players
             .where("_id")
             .equals(id)
             .first();
+        if (!player) {
+            return;
+        }
+        const games = await db.games
+            .where("players")
+            .equals(id)
+            .toArray();
+        const datapoints = await this.getDataPointsByPlayer(id);
+        return { games, datapoints, player };
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return "" + (await db.datapoints.add(dataPoint));
+        dataPoint.date = new Date();
+        const id = await db.datapoints.add(dataPoint);
+        dataPoint._id = "" + id;
+        return dataPoint;
     },
     async getDataPointsByPlayer(playerId: string) {
         return db.datapoints

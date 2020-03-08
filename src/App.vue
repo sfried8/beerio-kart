@@ -7,6 +7,11 @@
             <router-link v-if="$route.name !== 'loadgame'" to="/loadgame"
                 >Load Game</router-link
             >
+            <router-link
+                v-if="$route.name !== 'searchplayer'"
+                to="/searchplayer"
+                >Player Search</router-link
+            >
         </div>
         <router-view></router-view>
     </div>
@@ -37,7 +42,7 @@ export default class App extends Vue {}
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    width: 200px;
+    width: 20vw;
     margin: 0 auto 10px auto;
 }
 </style>

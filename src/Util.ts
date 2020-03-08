@@ -1,3 +1,5 @@
+import { IDataPoint } from "./models/DataPoint";
+
 export function addNumberEnding(num: number) {
     if (!num) {
         return "";
@@ -60,4 +62,66 @@ export function kartScore(places: number[]) {
         }
         return acc + 13 - cur;
     }, 0);
+}
+
+export function getColorByPlayerIndex(index: number) {
+    return ["#ead441", "#6cecfd", "#fe727d", "#3ee413"][index] || "#888888";
+}
+
+export function mode<T>(arr: T[]): { value?: T; frequency: number } {
+    const numMapping: any = {};
+    let greatestFreq = 0;
+    let mode;
+    arr.forEach(value => {
+        numMapping[value] = (numMapping[value] || 0) + 1;
+
+        if (greatestFreq < numMapping[value]) {
+            greatestFreq = numMapping[value];
+            mode = value;
+        }
+    });
+    return { value: mode, frequency: greatestFreq };
+}
+
+export function bestAndWorstCourse(datapoints: IDataPoint[]) {
+    const mapping: any = {};
+    datapoints.forEach(dp => {
+        if (!dp.course) {
+            return;
+        }
+
+        if (!mapping[dp.course]) {
+            mapping[dp.course] = [];
+        }
+        mapping[dp.course].push(dp.y);
+    });
+    const bestCourse = { value: 0, average: Infinity, frequency: 0 };
+    const worstCourse = { value: 0, average: -Infinity, frequency: 0 };
+    for (const course in mapping) {
+        if (mapping.hasOwnProperty(course)) {
+            const points = mapping[+course];
+            const ave = average(points);
+            if (
+                ave &&
+                (ave < bestCourse.average ||
+                    (ave === bestCourse.average &&
+                        points.length > bestCourse.frequency))
+            ) {
+                bestCourse.value = +course;
+                bestCourse.average = ave;
+                bestCourse.frequency = points.length;
+            }
+            if (
+                ave &&
+                (ave > worstCourse.average ||
+                    (ave === worstCourse.average &&
+                        points.length > worstCourse.frequency))
+            ) {
+                worstCourse.value = +course;
+                worstCourse.average = ave;
+                worstCourse.frequency = points.length;
+            }
+        }
+    }
+    return { best: bestCourse.value, worst: worstCourse.value };
 }

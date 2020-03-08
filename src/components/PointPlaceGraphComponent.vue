@@ -1,10 +1,9 @@
 <template>
     <div>
-        <input type="checkbox" v-model="showHistory" name="showhistory" />
-        <label for="showhistory">Show history?</label>
         <point-place-scatter
             :chart-data="chartData"
             :courseNames="courseNames"
+            :pointDates="pointDates"
             :styles="{
                 position: 'relative',
                 height: '500px'
@@ -32,38 +31,15 @@ import { IDataPoint } from "../models/DataPoint";
     }
 })
 export default class PointPlaceGraphComponent extends Vue {
-    showHistory: boolean = false;
-
-    @Prop() players!: Player[];
     @Prop() datasets!: IDataPoint[][];
-    @Prop() gameId!: string;
-    historyDatasets: IDataPoint[][] = [];
-    async mounted() {
-        const data = [];
-        for (const player of this.players) {
-            const dps = await DatabaseManager.getDataPointsByPlayer(
-                player._id || ""
-            );
-            data.push(dps.filter(dp => dp.gameId !== this.gameId));
-        }
-        this.historyDatasets = data;
-    }
-    get allDatasets(): IDataPoint[][] {
-        if (this.showHistory) {
-            return this.historyDatasets.map((ds, i) => [
-                ...ds,
-                ...this.datasets[i]
-            ]);
-        } else {
-            return this.datasets;
-        }
-    }
+    @Prop() players!: IPlayer[];
+
     get chartData() {
         const trendlines: any[] = [];
-        if (!this.allDatasets) {
+        if (!this.datasets) {
             return { datasets: [] };
         }
-        this.allDatasets.forEach((d, i) => {
+        this.datasets.forEach((d, i) => {
             const playerAverages: number[][] = [];
             d.forEach(h => {
                 if (!playerAverages[h.x]) {
@@ -84,8 +60,8 @@ export default class PointPlaceGraphComponent extends Vue {
             trendlines.push({
                 label: "remove",
                 data: playerTrendlines,
-                backgroundColor: this.players[i].playerColor,
-                borderColor: this.players[i].playerColor,
+                backgroundColor: Util.getColorByPlayerIndex(i),
+                borderColor: Util.getColorByPlayerIndex(i),
                 fill: false,
                 pointHitRadius: 0.01,
                 type: "line"
@@ -95,8 +71,8 @@ export default class PointPlaceGraphComponent extends Vue {
             datasets: [
                 ...this.players.map((p, i) => ({
                     label: p.name,
-                    data: this.allDatasets[i],
-                    backgroundColor: p.playerColor,
+                    data: this.datasets[i],
+                    backgroundColor: Util.getColorByPlayerIndex(i),
                     pointRadius: 6
                 })),
                 ...trendlines
@@ -104,8 +80,13 @@ export default class PointPlaceGraphComponent extends Vue {
         };
     }
     get courseNames() {
-        return this.allDatasets.map(d =>
+        return this.datasets.map(d =>
             d.map(dp => Course[dp.course || 0].label)
+        );
+    }
+    get pointDates() {
+        return this.datasets.map(d =>
+            d.map(dp => (dp.date ? new Date(dp.date).toLocaleString() : "-"))
         );
     }
 }

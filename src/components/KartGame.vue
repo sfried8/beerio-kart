@@ -24,18 +24,22 @@
                     Enter race {{ roundNumber + 1 }} results
                 </button>
             </div>
-            <game-history-component
-                v-if="game"
-                :game="game"
-                :players="players"
-            />
+            <input type="checkbox" v-model="showGraph" name="showgraph" />
+            <label for="showgraph">Show graph</label>
+
+            <keep-alive>
+                <component
+                    :is="
+                        showGraph
+                            ? 'GameGraphComponent'
+                            : 'GameHistoryComponent'
+                    "
+                    v-if="game"
+                    :game="game"
+                    :players="players"
+                />
+            </keep-alive>
             <br />
-            <point-place-graph-component
-                v-if="game"
-                :players="players"
-                :gameId="game._id"
-                :datasets="game.datasets"
-            />
         </div>
     </div>
 </template>
@@ -49,14 +53,14 @@ import DatabaseManager from "../MongoDatabaseManager";
 
 import Player, { IPlayer } from "../models/Player";
 import Game, { IGame } from "../models/Game";
-import PointPlaceGraphComponent from "./PointPlaceGraphComponent.vue";
+import GameGraphComponent from "./GameGraphComponent.vue";
 import GameHistoryComponent from "./GameHistoryComponent.vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGameData } from "../DatabaseManager";
 
 @Component({
     components: {
-        PointPlaceGraphComponent,
+        GameGraphComponent,
         GameHistoryComponent,
         PlayerComponent
     }
@@ -67,6 +71,7 @@ export default class KartGame extends Vue {
     game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
+    showGraph: boolean = false;
     async mounted() {
         await DatabaseManager.init();
         this.playersFromDatabase = await DatabaseManager.getPlayers();
@@ -92,7 +97,8 @@ export default class KartGame extends Vue {
             this.numRaces,
             gameToLoad.game.history,
             gameToLoad.game.courseHistory,
-            gameToLoad.game._id
+            gameToLoad.game._id,
+            gameToLoad.datapoints
         );
         if (!gameToLoad.game.history || gameToLoad.game.history.length === 0) {
             this.game.startGame();
@@ -119,10 +125,10 @@ export default class KartGame extends Vue {
             this.game.promptAll();
         }
     }
-    get roundNumber() {
+    get roundNumber(): number {
         return this.game ? this.game.roundNumber : -1;
     }
-    get availableRecentNames() {
+    get availableRecentNames(): IPlayer[] {
         return this.playersFromDatabase.filter(
             n => !this.players.some(p => p._id === n._id)
         );

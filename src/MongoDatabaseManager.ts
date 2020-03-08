@@ -72,19 +72,23 @@ const MongoDatabaseManager: IDatabaseManager = {
         return (await fetch(url + "/player/" + id)).json();
     },
     async addDataPoint(dataPoint: IDataPoint) {
-        return (
-            await (
-                await fetch(url + "/datapoint", {
-                    body: JSON.stringify(dataPoint),
-                    method: "POST",
-                    headers: { "Content-type": "application/json" }
-                })
-            ).json()
-        )._id;
+        const response = await (
+            await fetch(url + "/datapoint", {
+                body: JSON.stringify(dataPoint),
+                method: "POST",
+                headers: { "Content-type": "application/json" }
+            })
+        ).json();
+        response.date = new Date(response.date);
+        return response;
     },
     async getDataPointsByPlayer(playerId: string) {
         const json = await fetch(url + "/datapoints?player=" + playerId);
-        return json.json();
+        const response = await json.json();
+        response.forEach((element: any) => {
+            element.date = new Date(element.date);
+        });
+        return response;
     },
     async deleteGame(game: IGame) {
         if (!game._id) {

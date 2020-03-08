@@ -17,6 +17,7 @@ import Vue from "vue";
 import DatabaseManager from "../MongoDatabaseManager";
 import { IGameData } from "@/DatabaseManager";
 import { IDataPoint } from "./DataPoint";
+import { getColorByPlayerIndex } from "@/Util";
 export default class Game {
     public roundNumber: number = -1;
     public datasets: IDataPoint[][] = [];
@@ -27,9 +28,15 @@ export default class Game {
         public numRaces: number = 8,
         public history: number[][] = [],
         public courseHistory: number[] = [],
-        existingId?: string
+        existingId?: string,
+        datapoints: IDataPoint[] = []
     ) {
         this.datasets = players.map(p => []);
+        const playerIdToIndex: any = {};
+        players.forEach((p, i) => (playerIdToIndex[p._id || ""] = i));
+        datapoints.forEach(d =>
+            this.datasets[playerIdToIndex[d.playerId]].push(d)
+        );
         if (existingId) {
             this._id = existingId;
         }
@@ -57,12 +64,12 @@ export default class Game {
     startGame() {
         this.roundNumber = 0;
 
-        this.datasets.forEach(d => d.splice(0, d.length));
+        // this.datasets.forEach(d => d.splice(0, d.length));
         this.players.forEach((p, i) => {
             p.currentRoundPoints.clear();
             p.extraDict = [];
             p.points.clear();
-            p.playerColor = ["#fae451", "#6cecfd", "#fe727d", "#3ee413"][i];
+            p.playerColor = getColorByPlayerIndex(i);
             p.numPlayers = this.players.length;
         });
     }
@@ -86,11 +93,12 @@ export default class Game {
             };
 
             if (!isUndoing) {
-                DatabaseManager.addDataPoint(dataPoint).then(
-                    id => (dataPoint._id = id)
-                );
+                DatabaseManager.addDataPoint(dataPoint).then(newDP => {
+                    dataPoint._id = newDP._id;
+                    dataPoint.date = new Date(newDP.date || "");
+                    this.datasets[i].push(dataPoint);
+                });
             }
-            this.datasets[i].push(dataPoint);
             p.points.combineGroup(p.currentRoundPoints);
             p.currentRoundPoints.clear();
             p.addRacePoints(addedPoints, lastPlace);
