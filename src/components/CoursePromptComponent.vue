@@ -4,7 +4,7 @@
             {{ title }}
         </h1>
         <div class="choose-course-container">
-            <v-select
+            <vue-select
                 ref="courseSelect"
                 class="choose-course-select"
                 :options="options"

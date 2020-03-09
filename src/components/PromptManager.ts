@@ -8,7 +8,7 @@ export function KeypadPrompt(
     title: string,
     playerHistory: number[]
 ): Promise<number> {
-    const container = document.querySelector("#app");
+    const container = document.querySelector(".v-content");
     if (!container) {
         return Promise.reject();
     }

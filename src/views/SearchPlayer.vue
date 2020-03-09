@@ -1,7 +1,7 @@
 <template>
     <div class="kart-game">
         <div style="max-width:900px;margin:auto;">
-            <v-select
+            <vue-select
                 :options="playersFromDatabase"
                 label="name"
                 placeholder="Find Player"

@@ -1,6 +1,7 @@
 <template>
-    <div>
+    <div class="home-container">
         Welcome to Beerio Kart! Please drink responsibly.
+        <img src="/drunk-mario.png" />
     </div>
 </template>
 
@@ -11,3 +12,13 @@ export default Vue.extend({
     name: "Home"
 });
 </script>
+<style lang="less">
+.home-container {
+    margin-top: 5vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+</style>

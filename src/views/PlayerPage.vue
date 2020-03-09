@@ -17,13 +17,13 @@
                 </point-place-graph-component>
             </div>
             <div class="graph-panel">
-                <v-select
+                <vue-select
                     multiple
                     placeholder="Filter courses"
                     :options="filterOptions"
                     v-model="filteredCourses"
                 />
-                <v-select
+                <vue-select
                     multiple
                     v-model="otherPlayers"
                     :options="playersFromDatabase"
@@ -177,6 +177,7 @@ export default class PlayerPage extends Vue {
 .graph-container {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-evenly;
     width: 90vw;
     margin: 2vh auto;
@@ -186,5 +187,13 @@ export default class PlayerPage extends Vue {
 }
 .graph-panel {
     width: 18%;
+}
+@media screen and (max-width: 1000px) {
+    .graph-inner {
+        width: 100%;
+    }
+    .graph-panel {
+        width: 75%;
+    }
 }
 </style>

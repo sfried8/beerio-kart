@@ -1,7 +1,7 @@
 <template>
     <div class="kart-game">
         <div style="max-width:900px;margin:auto;">
-            <v-select
+            <vue-select
                 taggable
                 multiple
                 v-model="players"
