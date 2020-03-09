@@ -1,5 +1,5 @@
 <template>
-    <div class="kart-game">
+    <div class="ma-5">
         <div style="max-width:900px;margin:auto;">
             <vue-select
                 :options="playersFromDatabase"

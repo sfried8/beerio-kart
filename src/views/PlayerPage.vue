@@ -1,13 +1,28 @@
 <template>
-    <div>
-        <div>
+    <div class="ma-5">
+        <h2 style="text-align:center">
             {{ name }}
+        </h2>
+        <div
+            style="display:inline-block;width:40%;text-align:right;padding-right:8px;"
+        >
+            <div>Total games:</div>
+            <div>Total races:</div>
+            <div>Favorite course:</div>
+            <div>Best course:</div>
+            <div>Worst course:</div>
         </div>
-        <div>Total games: {{ totalGames }}</div>
-        <div>Total races: {{ totalRaces }}</div>
-        <div>Favorite course: {{ favoriteCourse }}</div>
-        <div>Best course: {{ bestCourse }}</div>
-        <div>Worst course: {{ worstCourse }}</div>
+        <div style="display:inline-block;width:60%;padding-left:8px;">
+            <div>{{ totalGames }}</div>
+            <div>{{ totalRaces }}</div>
+            <div
+                style="width:100%;overflow:hidden;white-space:nowrap; text-overflow:ellipsis"
+            >
+                {{ favoriteCourse }}
+            </div>
+            <div>{{ bestCourse }}</div>
+            <div>{{ worstCourse }}</div>
+        </div>
         <div class="graph-container">
             <div class="graph-inner">
                 <point-place-graph-component
