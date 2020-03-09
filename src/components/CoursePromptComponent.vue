@@ -1,9 +1,9 @@
 <template>
     <div class="overlay">
-        <h1 style="color:white">
+        <h1 style="color:white;text-align:center" class="ma-5">
             {{ title }}
         </h1>
-        <div class="choose-course-container">
+        <div class="choose-course-container ma-5">
             <vue-select
                 ref="courseSelect"
                 class="choose-course-select"

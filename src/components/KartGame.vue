@@ -1,32 +1,75 @@
 <template>
     <div class="kart-game">
         <div>
-            <div>Round {{ roundNumber }}</div>
+            <div style="height:calc(40vh - 64px)">
+                <h3 style="text-align:center">Round {{ roundNumber }}</h3>
 
-            <div class="player-component-container">
-                <player-component
-                    v-for="player in players"
-                    :key="player.name"
-                    v-bind.sync="player"
-                ></player-component>
+                <div class="player-component-container">
+                    <player-component
+                        v-for="player in players"
+                        :key="player.name"
+                        v-bind.sync="player"
+                    ></player-component>
+                </div>
+
+                <div class="button-panel">
+                    <v-btn @click="undo" v-if="roundNumber > 0" class="undo">
+                        undo
+                    </v-btn>
+
+                    <v-btn
+                        @click="promptAll"
+                        color="success"
+                        v-if="roundNumber < numRaces"
+                    >
+                        <v-icon>mdi-flag-plus</v-icon> Race
+                        {{ roundNumber + 1 }}
+                    </v-btn>
+                </div>
             </div>
-
-            <div class="button-panel">
-                <v-btn @click="undo" v-if="roundNumber > 0" class="undo">
-                    undo
-                </v-btn>
-
-                <v-btn @click="promptAll" v-if="roundNumber < numRaces">
-                    Enter race {{ roundNumber + 1 }} results
-                </v-btn>
+            <div style="height:60vh;">
+                <v-divider></v-divider>
+                <v-tabs v-model="activeTab">
+                    <v-tab :key="1" ripple>
+                        <v-icon>mdi-flag-checkered</v-icon>Races
+                    </v-tab>
+                    <v-tab :key="2" ripple>
+                        <v-icon>mdi-chart-timeline-variant</v-icon>
+                        {{ " Game" }}
+                    </v-tab>
+                    <v-tab :key="3" ripple>
+                        <v-icon>mdi-chart-timeline-variant</v-icon
+                        >{{ " All Time" }}
+                    </v-tab>
+                    <v-tab-item :key="1">
+                        <GameHistoryComponent
+                            v-if="game"
+                            :game="game"
+                            :players="players"
+                        />
+                    </v-tab-item>
+                    <v-tab-item :key="2">
+                        <GameGraphComponent
+                            v-if="game"
+                            :game="game"
+                            :players="players"
+                            :showHistory="false"
+                        />
+                    </v-tab-item>
+                    <v-tab-item :key="3">
+                        <GameGraphComponent
+                            v-if="game"
+                            :game="game"
+                            :players="players"
+                            :showHistory="true"
+                        />
+                    </v-tab-item>
+                </v-tabs>
             </div>
-            <input type="checkbox" v-model="showGraph" name="showgraph" />
-            <label for="showgraph">Show graph</label>
-
-            <keep-alive>
+            <!-- <keep-alive>
                 <component
                     :is="
-                        showGraph
+                        activeTab
                             ? 'GameGraphComponent'
                             : 'GameHistoryComponent'
                     "
@@ -34,8 +77,8 @@
                     :game="game"
                     :players="players"
                 />
-            </keep-alive>
-            <br />
+            </keep-alive> -->
+            <!-- <br /> -->
         </div>
     </div>
 </template>
@@ -67,7 +110,7 @@ export default class KartGame extends Vue {
     game: Game | null = null;
     pendingName: string = "";
     playersFromDatabase: IPlayer[] = [];
-    showGraph: boolean = false;
+    activeTab: number = 0;
     async mounted() {
         await DatabaseManager.init();
         this.playersFromDatabase = await DatabaseManager.getPlayers();
@@ -138,6 +181,7 @@ export default class KartGame extends Vue {
     display: flex;
     padding: 10px;
     height: 50px;
+    margin-bottom: 10px;
     justify-content: space-between;
 }
 .undo {

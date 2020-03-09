@@ -1,6 +1,6 @@
 <template>
     <div class="overlay">
-        <h1 style="color:white">
+        <h1 style="color:white;text-align:center" class="mt-5">
             {{ title }}
         </h1>
         <div class="keypad">
@@ -39,6 +39,7 @@ export default class KeypadComponent extends Vue {
     top: 0;
     right: 0;
     bottom: 0;
+    z-index: 9;
     background-color: rgba(0, 0, 0, 0.75);
 }
 .keypad {

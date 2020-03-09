@@ -1,7 +1,7 @@
 <template>
     <div class="history-container">
         <div
-            class="history-race-container"
+            class="history-race-container py-2 px-3"
             v-for="(s, i) in historyItems"
             :key="s.course"
         >
@@ -49,8 +49,8 @@ export default class GameHistoryComponent extends Vue {
 .history-race-container {
     display: flex;
     flex-direction: row;
-    width: 20vw;
-    min-width: 385px;
+    width: 100vw;
+    max-width: 1000px;
     justify-content: space-between;
     text-align: left;
     margin: 2vh auto;
@@ -58,7 +58,7 @@ export default class GameHistoryComponent extends Vue {
 .history-container {
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
-    min-height: 50vh;
+    height: calc(60vh - 48px);
+    overflow: auto;
 }
 </style>

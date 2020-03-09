@@ -100,7 +100,7 @@ export default {
 }
 /* @media only screen and (orientation: landscape) { */
 .playerComponent {
-    width: calc(50% - 30px);
+    width: calc(50% - 26px);
 }
 /* } */
 .message {

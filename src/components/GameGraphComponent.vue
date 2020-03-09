@@ -1,7 +1,5 @@
 <template>
     <div>
-        <input type="checkbox" v-model="showHistory" name="showhistory" />
-        <label for="showhistory">Show history?</label>
         <point-place-graph-component
             :datasets="allDatasets"
             :players="players"
@@ -28,12 +26,15 @@ import { IDataPoint } from "../models/DataPoint";
     }
 })
 export default class GameGraphComponent extends Vue {
-    showHistory: boolean = false;
+    @Prop() showHistory!: boolean;
 
     @Prop() players!: Player[];
     @Prop() game!: Game;
     historyDatasets: IDataPoint[][] = [];
     async mounted() {
+        if (!this.showHistory) {
+            return;
+        }
         const data = [];
         for (const player of this.players) {
             const dps = await DatabaseManager.getDataPointsByPlayer(

@@ -1,5 +1,5 @@
 <template>
-    <div class="kart-game">
+    <div class="pa-5">
         <div style="max-width:900px;margin:auto;">
             <vue-select
                 taggable
@@ -13,11 +13,20 @@
             />
         </div>
         <div style="margin:3vh">
-            <label for="numraces">Number of races: </label>
-            <input name="numraces" v-model="numRaces" />
+            <v-text-field
+                type="number"
+                label="Number of races"
+                v-model="numRaces"
+            />
         </div>
-        <div>
-            <button v-if="players.length" @click="startGame">Start Game</button>
+        <div style="width:100%">
+            <v-btn
+                :disabled="!players.length"
+                class="ma-auto"
+                color="success"
+                @click="startGame"
+                >Start Game</v-btn
+            >
         </div>
     </div>
 </template>
@@ -67,6 +76,9 @@ export default class NewGame extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.new-game {
+    padding: 15px;
+}
 .button-panel {
     display: grid;
     grid-template-columns: 1fr 1fr 4fr 1fr;
