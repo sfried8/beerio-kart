@@ -1,18 +1,44 @@
 <template>
     <div
         class="playerComponent"
+        @click.stop="messagesExpanded = true"
         :style="{ 'border-left': '6px solid ' + playerColor }"
     >
         <div class="playerName">{{ name }}</div>
         <div class="totalPoints">
             {{ points.amount() + currentRoundPoints.amount() }}
         </div>
-        <div v-if="currentRoundPoints.amount()">
+        <v-dialog v-model="messagesExpanded" width="500">
+            <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title>
+                    {{ name }}
+                </v-card-title>
+                <v-card-text
+                    ><div>
+                        This round: {{ currentRoundPoints.amount() }}
+                    </div></v-card-text
+                >
+                <v-divider></v-divider>
+                <v-card-text>
+                    <div v-for="m in messages" :key="m" class="message">
+                        {{ m }}
+                    </div>
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        text
+                        @click="messagesExpanded = false"
+                    >
+                        OK
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <div v-if="currentRoundPoints.amount()" class="this-round">
             This round: {{ currentRoundPoints.amount() }}
-            <button @click="messagesExpanded = !messagesExpanded">?</button>
-        </div>
-        <div v-if="messagesExpanded">
-            <div v-for="m in messages" :key="m" class="message">{{ m }}</div>
         </div>
     </div>
 </template>
@@ -45,14 +71,15 @@ export default {
 <style scoped>
 .playerName {
     grid-area: name;
-    font-size: 24px;
+    font-size: 18px;
+    text-align: center;
 }
 .totalPoints {
     grid-area: total;
-    font-size: 24px;
+    font-size: 18px;
 }
 .playerComponent {
-    margin: 15px;
+    margin: 10px;
     min-height: 10vh;
     user-select: none;
     padding: 10px;
@@ -63,19 +90,28 @@ export default {
     grid-template-columns: 1fr 6fr;
     grid-template-rows: auto auto;
     grid-template-areas:
-        "name result"
+        "name name"
         "total result";
 }
-@media only screen and (orientation: landscape) {
+@media only screen and (max-width: 1000px) {
     .playerComponent {
-        width: calc(50% - 60px);
+        margin: 0 10px;
     }
 }
+/* @media only screen and (orientation: landscape) { */
+.playerComponent {
+    width: calc(50% - 30px);
+}
+/* } */
 .message {
     font-weight: normal;
     font-size: small;
 }
 .roundResults {
     grid-area: "result";
+}
+.this-round {
+    font-size: 12px;
+    font-weight: lighter;
 }
 </style>

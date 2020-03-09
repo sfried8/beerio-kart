@@ -1,22 +1,18 @@
 <template>
-    <div class="recent-game" @click="$emit('load')">
-        <div class="existing-option-id">#{{ game._id }}</div>
-        <div
-            class="existing-option-delete"
-            @click.stop.prevent="$emit('delete')"
-        >
-            {{ deleteContent }}
-        </div>
-        <div class="existing-option-data">
-            <div>{{ dateString }}</div>
-            <div>
-                {{ playerNameString }}
-            </div>
-            <div>
-                {{ progressString }}
-            </div>
-        </div>
-    </div>
+    <v-list-item @click="$emit('load')">
+        <v-list-item-content>
+            <v-list-item-title>{{ playerNameString }}</v-list-item-title>
+            <v-list-item-subtitle
+                >{{ dateString }} {{ progressString }}</v-list-item-subtitle
+            >
+        </v-list-item-content>
+
+        <v-list-item-action>
+            <v-btn icon ripple @click.stop.prevent="$emit('delete')">
+                <v-icon color="red darken-1">mdi-delete</v-icon>
+            </v-btn>
+        </v-list-item-action>
+    </v-list-item>
 </template>
 
 <script lang="ts">

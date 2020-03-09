@@ -12,17 +12,13 @@
             </div>
 
             <div class="button-panel">
-                <button @click="undo" v-if="roundNumber > 0" class="undo">
+                <v-btn @click="undo" v-if="roundNumber > 0" class="undo">
                     undo
-                </button>
+                </v-btn>
 
-                <button
-                    @click="promptAll"
-                    v-if="roundNumber < numRaces"
-                    class="next"
-                >
+                <v-btn @click="promptAll" v-if="roundNumber < numRaces">
                     Enter race {{ roundNumber + 1 }} results
-                </button>
+                </v-btn>
             </div>
             <input type="checkbox" v-model="showGraph" name="showgraph" />
             <label for="showgraph">Show graph</label>
@@ -139,12 +135,10 @@ export default class KartGame extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .button-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr 4fr 1fr;
-    column-gap: 5%;
+    display: flex;
     padding: 10px;
     height: 50px;
-    grid-template-areas: "undo newgame . next";
+    justify-content: space-between;
 }
 .undo {
     grid-area: undo;

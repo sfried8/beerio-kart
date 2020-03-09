@@ -5,8 +5,7 @@
             :courseNames="courseNames"
             :pointDates="pointDates"
             :styles="{
-                position: 'relative',
-                height: '500px'
+                position: 'relative'
             }"
         />
     </div>
