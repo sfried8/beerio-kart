@@ -208,11 +208,11 @@ export default class KartGame extends Vue {
     flex-wrap: wrap;
 }
 .players-container {
-    height: calc(40vh - 64px);
+    height: calc(40vh - 56px);
     min-height: 250px;
 }
 .info-container {
-    max-height: calc(100vh - 250px - 64px);
-    height: calc(60vh - 64px);
+    max-height: calc(100vh - 250px - 56px);
+    height: calc(60vh - 56px);
 }
 </style>

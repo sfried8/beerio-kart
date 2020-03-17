@@ -1,10 +1,21 @@
 <template>
     <v-app>
-        <v-app-bar app color="primary" dark>
+        <v-app-bar fixed app color="primary" dark>
             <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-            <v-toolbar-title>Beerio Kart</v-toolbar-title>
+            <v-toolbar-title class="pipe-dream"
+                ><span class="pipe-dream-blue">B</span
+                ><span class="pipe-dream-yellow">e</span
+                ><span class="pipe-dream-red">e</span
+                ><span class="pipe-dream-green">r</span
+                ><span class="pipe-dream-yellow">i</span
+                ><span class="pipe-dream-blue">o</span
+                ><span class="pipe-dream-red"> K</span
+                ><span class="pipe-dream-green">a</span
+                ><span class="pipe-dream-yellow">r</span
+                ><span class="pipe-dream-blue">t</span></v-toolbar-title
+            >
         </v-app-bar>
-        <v-navigation-drawer v-model="drawer" absolute temporary>
+        <v-navigation-drawer v-model="drawer" app temporary>
             <v-list nav dense>
                 <v-list-item-group active-class="blue--text text--accent-4">
                     <v-list-item to="/">
@@ -52,3 +63,27 @@ export default Vue.extend({
     })
 });
 </script>
+<style lang="less">
+@font-face {
+    font-family: "PipeDream";
+    src: url("./assets/PipeDream.ttf");
+}
+.pipe-dream {
+    font-family: "PipeDream";
+    font-size: 2rem !important;
+    -webkit-text-stroke: 1px black;
+    text-shadow: black 1px 1px 2px;
+}
+.pipe-dream-red {
+    color: #fd3332;
+}
+.pipe-dream-green {
+    color: #22ba31;
+}
+.pipe-dream-yellow {
+    color: #ffc61d;
+}
+.pipe-dream-blue {
+    color: #2a78fe;
+}
+</style>
