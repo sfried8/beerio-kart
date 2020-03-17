@@ -8,6 +8,7 @@ Vue.component("vue-select", vSelect);
 
 import "vue-select/dist/vue-select.css";
 import vuetify from "./plugins/vuetify";
+import "./registerServiceWorker";
 Vue.config.productionTip = false;
 
 new Vue({
