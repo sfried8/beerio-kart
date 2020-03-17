@@ -1,6 +1,15 @@
 <template>
     <div>
-        <v-list two-line subheader>
+        <div v-if="isLoading" class="text-center caption mt-12">
+            Loading games
+            <br />
+            <v-progress-circular
+                class="mt-3"
+                indeterminate
+                color="primary"
+            ></v-progress-circular>
+        </div>
+        <v-list v-else two-line subheader>
             <v-subheader>In Progress</v-subheader>
             <existing-game-option-component
                 v-for="g in inProgressGames"
@@ -38,6 +47,7 @@ export default class LoadGame extends Vue {
     allExistingGames: IGameData[] = [];
     inProgressGames: IGameData[] = [];
     finishedGames: IGameData[] = [];
+    isLoading: boolean = true;
     async mounted() {
         await DatabaseManager.init();
         this.allExistingGames = await DatabaseManager.getAllGames(true);
@@ -48,6 +58,7 @@ export default class LoadGame extends Vue {
                 this.finishedGames.push(g);
             }
         });
+        this.isLoading = false;
     }
     loadGame(gameToLoad: IGame) {
         this.$router.push("game/" + gameToLoad._id);

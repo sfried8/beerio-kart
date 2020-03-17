@@ -19,10 +19,21 @@
                 v-model="numRaces"
             />
         </div>
-        <div style="width:100%">
+        <div class="preset-container">
+            <v-btn
+                v-for="n in racePresets"
+                :color="numRaces == n ? 'blue' : ''"
+                :key="n"
+                @click="() => (numRaces = n)"
+                >{{ n }}</v-btn
+            >
+        </div>
+        <div
+            style="width:100%;display:flex;justify-content:center;align-items:center;"
+        >
             <v-btn
                 :disabled="!players.length"
-                class="ma-auto"
+                large
                 color="success"
                 @click="startGame"
                 >Start Game</v-btn
@@ -39,6 +50,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class NewGame extends Vue {
+    racePresets: number[] = [4, 6, 8, 12, 16, 24, 32, 48];
     players: IPlayer[] = [];
     numRaces: number = 8;
     playersFromDatabase: IPlayer[] = [];
@@ -75,7 +87,7 @@ export default class NewGame extends Vue {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less">
 .new-game {
     padding: 15px;
 }
@@ -112,5 +124,15 @@ export default class NewGame extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+.preset-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-bottom: 3vh;
+    button {
+        margin: 2vw;
+    }
 }
 </style>
