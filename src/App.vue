@@ -14,7 +14,33 @@
                 ><span class="pipe-dream-yellow">r</span
                 ><span class="pipe-dream-blue">t</span></v-toolbar-title
             >
+            <v-spacer></v-spacer>
+
+            <v-btn
+                icon
+                v-if="offlineMode"
+                @click.stop="() => (offlineDialog = true)"
+            >
+                <v-icon>mdi-wifi-off</v-icon>
+            </v-btn>
         </v-app-bar>
+        <v-dialog v-model="offlineDialog" width="500">
+            <v-card>
+                <v-card-title class="headline grey lighten-2" primary-title>
+                    You're in Offline Mode
+                </v-card-title>
+                <v-card-text>
+                    You can still play Beerio Kart, but your results will not be
+                    saved</v-card-text
+                >
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" text @click="offlineDialog = false">
+                        OK
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <v-navigation-drawer v-model="drawer" app temporary>
             <v-list nav dense>
                 <v-list-item-group active-class="blue--text text--accent-4">
@@ -54,13 +80,24 @@
 
 <script lang="ts">
 import Vue from "vue";
+import MongoFallbackManager from "./MongoDatabaseManager";
 
 export default Vue.extend({
     name: "App",
 
     data: () => ({
-        drawer: false
-    })
+        drawer: false,
+        offlineDialog: false,
+        MongoFallbackManager
+    }),
+    mounted() {
+        this.MongoFallbackManager.init();
+    },
+    computed: {
+        offlineMode() {
+            return !this.MongoFallbackManager.initialized;
+        }
+    }
 });
 </script>
 <style lang="less">

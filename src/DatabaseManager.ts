@@ -34,6 +34,7 @@ class KartDatabase extends Dexie {
 const db = new KartDatabase("beerio-kart");
 export interface IDatabaseManager {
     init(): Promise<any>;
+    initialized: boolean;
     getPlayers(): Promise<IPlayer[]>;
 
     getGameById(id: string): Promise<IGameData | undefined>;
@@ -57,6 +58,7 @@ export interface IDatabaseManager {
 const getRandomId = () =>
     "" + (Math.floor(Math.random() * 100000000) + 100000000);
 const DatabaseManager: IDatabaseManager = {
+    initialized: false,
     async init() {
         if (db.isOpen()) {
             return Promise.resolve();
@@ -81,7 +83,7 @@ const DatabaseManager: IDatabaseManager = {
             // db.datapoints.add({ gameId: "", playerId: "1", x: 0, y: 12 });
         });
 
-        return db.open();
+        return db.open().then(() => (this.initialized = true));
     },
     async getPlayers() {
         return db.players.toArray();
@@ -90,7 +92,7 @@ const DatabaseManager: IDatabaseManager = {
     async getGameById(id: string) {
         const game = await db.games
             .where("_id")
-            .equals(+id)
+            .equals(id)
             .first();
         if (!game) {
             return;
