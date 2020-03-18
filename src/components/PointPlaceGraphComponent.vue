@@ -4,6 +4,7 @@
             :chart-data="chartData"
             :courseNames="courseNames"
             :pointDates="pointDates"
+            :numRaces="numRaces"
             :styles="{
                 position: 'relative'
             }"
@@ -32,6 +33,7 @@ import { IDataPoint } from "../models/DataPoint";
 export default class PointPlaceGraphComponent extends Vue {
     @Prop() datasets!: IDataPoint[][];
     @Prop() players!: IPlayer[];
+    @Prop() numRaces?: number;
 
     get chartData() {
         const trendlines: any[] = [];
@@ -71,7 +73,7 @@ export default class PointPlaceGraphComponent extends Vue {
                 ...this.players.map((p, i) => ({
                     label: p.name,
                     data: this.datasets[i],
-                    backgroundColor: Util.getColorByPlayerIndex(i),
+                    backgroundColor: Util.getColorByPlayerIndex(i) + "50",
                     pointRadius: 6
                 })),
                 ...trendlines

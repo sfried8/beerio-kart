@@ -6,4 +6,5 @@ export interface IDataPoint {
     date?: Date | string;
     x: number;
     y: number;
+    r: number;
 }

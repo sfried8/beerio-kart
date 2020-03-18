@@ -3,6 +3,7 @@
         <point-place-graph-component
             :datasets="allDatasets"
             :players="players"
+            :numRaces="game.numRaces"
         />
     </div>
 </template>
