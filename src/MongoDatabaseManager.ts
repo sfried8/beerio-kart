@@ -1,12 +1,26 @@
-import { IDatabaseManager, IGameData } from "./DatabaseManager";
+import DatabaseManager, {
+    IDatabaseManager,
+    IGameData
+} from "./DatabaseManager";
 import { IDataPoint } from "./models/DataPoint";
 import { IGame } from "./models/Game";
 
 // const url = "https://beerio-kart-server.herokuapp.com";
 const url = "http://localhost:4000";
 const MongoDatabaseManager: IDatabaseManager = {
+    initialized: false,
     async init() {
-        return true;
+        this.initialized = false;
+        try {
+            const res = await fetch(url);
+            const resText = await res.text();
+            if (resText === "Welcome") {
+                this.initialized = true;
+                return true;
+            }
+        } catch (error) {
+            return false;
+        }
     },
     async getPlayers() {
         const json = await fetch(url + "/players");
@@ -114,4 +128,120 @@ const MongoDatabaseManager: IDatabaseManager = {
         });
     }
 };
-export default MongoDatabaseManager;
+
+export const MongoFallbackManager: IDatabaseManager = {
+    initialized: false,
+    async init() {
+        this.initialized = await MongoDatabaseManager.init();
+        if (!this.initialized) {
+            return DatabaseManager.init();
+        }
+        return true;
+    },
+    async getPlayers() {
+        if (this.initialized) {
+            return MongoDatabaseManager.getPlayers();
+        } else {
+            return DatabaseManager.getPlayers();
+        }
+    },
+
+    async getGameById(id: string) {
+        if (this.initialized) {
+            return MongoDatabaseManager.getGameById(id);
+        } else {
+            return DatabaseManager.getGameById(id);
+        }
+    },
+    async getAllGames(includeFinished: boolean = false) {
+        if (this.initialized) {
+            return MongoDatabaseManager.getAllGames(includeFinished);
+        } else {
+            return DatabaseManager.getAllGames(includeFinished);
+        }
+    },
+    async newGame(game: IGame) {
+        if (this.initialized) {
+            return MongoDatabaseManager.newGame(game);
+        } else {
+            return DatabaseManager.newGame(game);
+        }
+    },
+    async updateGameHistory(
+        gameId: string,
+        history: number[][],
+        courseHistory: number[]
+    ) {
+        if (this.initialized) {
+            return MongoDatabaseManager.updateGameHistory(
+                gameId,
+                history,
+                courseHistory
+            );
+        } else {
+            return DatabaseManager.updateGameHistory(
+                gameId,
+                history,
+                courseHistory
+            );
+        }
+    },
+    async putGame(game: IGame) {
+        if (this.initialized) {
+            return MongoDatabaseManager.putGame(game);
+        } else {
+            return DatabaseManager.putGame(game);
+        }
+    },
+    async addPlayer(name: string) {
+        if (this.initialized) {
+            return MongoDatabaseManager.addPlayer(name);
+        } else {
+            return DatabaseManager.addPlayer(name);
+        }
+    },
+    async getPlayerById(id: string) {
+        if (this.initialized) {
+            return MongoDatabaseManager.getPlayerById(id);
+        } else {
+            return DatabaseManager.getPlayerById(id);
+        }
+    },
+    async addDataPoint(dataPoint: IDataPoint) {
+        if (this.initialized) {
+            return MongoDatabaseManager.addDataPoint(dataPoint);
+        } else {
+            return DatabaseManager.addDataPoint(dataPoint);
+        }
+    },
+    async getDataPointsByPlayer(playerId: string) {
+        if (this.initialized) {
+            return MongoDatabaseManager.getDataPointsByPlayer(playerId);
+        } else {
+            return DatabaseManager.getDataPointsByPlayer(playerId);
+        }
+    },
+    async deleteGame(game: IGame) {
+        if (this.initialized) {
+            return MongoDatabaseManager.deleteGame(game);
+        } else {
+            return DatabaseManager.deleteGame(game);
+        }
+    },
+    async deleteDataPoint(dataPoint: IDataPoint) {
+        if (this.initialized) {
+            return MongoDatabaseManager.deleteDataPoint(dataPoint);
+        } else {
+            return DatabaseManager.deleteDataPoint(dataPoint);
+        }
+    },
+    async deleteDataPoints(dataPoints: IDataPoint[]) {
+        if (this.initialized) {
+            return MongoDatabaseManager.deleteDataPoints(dataPoints);
+        } else {
+            return DatabaseManager.deleteDataPoints(dataPoints);
+        }
+    }
+};
+
+export default MongoFallbackManager;

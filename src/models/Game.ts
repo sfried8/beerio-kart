@@ -90,9 +90,9 @@ export default class Game {
 
             const addedPoints = raceResults[i];
             const dataPoint: IDataPoint = {
-                x: p.totalPoints(),
+                x: this.roundNumber,
+                r: (p.totalPoints() + 1) * 3,
                 y: addedPoints,
-                r: 3,
                 course,
                 gameId: this._id || "",
                 playerId: p._id || ""

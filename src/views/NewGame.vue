@@ -47,6 +47,7 @@
                 >{{ n }}</v-btn
             >
         </div>
+<<<<<<< HEAD
         <div style="max-width:900px;margin:auto;">
             <vue-select v-model="cc" :options="ccs" placeholder="CC" />
         </div>
@@ -64,12 +65,14 @@
                 placeholder="Items"
             />
         </div>
+=======
+>>>>>>> master
         <div
             style="width:100%;display:flex;justify-content:center;align-items:center;"
         >
             <v-btn
                 :disabled="!players.length"
-                class="ma-auto"
+                large
                 color="success"
                 @click="startGame"
                 >Start Game</v-btn
@@ -87,6 +90,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class NewGame extends Vue {
+    racePresets: number[] = [4, 6, 8, 12, 16, 24, 32, 48];
     players: IPlayer[] = [];
     vehicles: { id: number; label: string }[] = [];
     characters: { id: number; label: string }[] = [];
@@ -152,7 +156,7 @@ export default class NewGame extends Vue {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less">
 .new-game {
     padding: 15px;
 }
@@ -189,5 +193,15 @@ export default class NewGame extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+.preset-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-bottom: 3vh;
+    button {
+        margin: 2vw;
+    }
 }
 </style>

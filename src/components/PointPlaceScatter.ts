@@ -1,4 +1,4 @@
-import { Scatter, mixins } from "vue-chartjs";
+import { Bubble, mixins } from "vue-chartjs";
 import Vue from "vue";
 import { addNumberEnding } from "@/Util";
 import { IDataPoint } from "@/models/DataPoint";
@@ -22,9 +22,10 @@ const newLegendClickHandler = function(e: any, legendItem: any) {
 export default Vue.extend({
     props: {
         courseNames: { type: Array as () => String[][] },
-        pointDates: { type: Array as () => String[][] }
+        pointDates: { type: Array as () => String[][] },
+        numRaces: { type: Number, default: undefined }
     },
-    extends: Scatter,
+    extends: Bubble,
     mixins: [reactiveProp],
     mounted() {
         // @ts-ignore
@@ -53,7 +54,9 @@ export default Vue.extend({
                     xAxes: [
                         {
                             ticks: {
-                                suggestedMin: 1
+                                suggestedMin: 1,
+                                suggestedMax: this.numRaces || 8,
+                                stepSize: 1
                             },
                             gridLines: {
                                 display: true
@@ -82,13 +85,15 @@ export default Vue.extend({
                     },
                     callbacks: {
                         label: (tooltipItem: any, data: any) => {
-                            return `${
-                                this.courseNames[tooltipItem.datasetIndex][
+                            const datapoint: IDataPoint =
+                                data.datasets[tooltipItem.datasetIndex].data[
                                     tooltipItem.index
-                                ]
-                            } ${addNumberEnding(tooltipItem.yLabel)} place (${
-                                tooltipItem.xLabel
-                            } points) ${
+                                ];
+                            return `${
+                                Course[datapoint.course || 0].label
+                            } ${addNumberEnding(
+                                tooltipItem.yLabel
+                            )} place (${datapoint.r / 3 - 1} points) ${
                                 this.pointDates[tooltipItem.datasetIndex][
                                     tooltipItem.index
                                 ]

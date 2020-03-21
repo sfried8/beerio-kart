@@ -1,72 +1,70 @@
 <template>
     <div class="kart-game">
-        <div>
-            <div style="height:calc(40vh - 64px)">
-                <h3 style="text-align:center">Round {{ roundNumber }}</h3>
+        <div class="players-container">
+            <h2 style="text-align:center">Round {{ roundNumber }}</h2>
 
-                <div class="player-component-container">
-                    <player-component
-                        v-for="player in players"
-                        :key="player.name"
-                        v-bind.sync="player"
-                    ></player-component>
-                </div>
-
-                <div class="button-panel">
-                    <v-btn @click="undo" v-if="roundNumber > 0" class="undo">
-                        undo
-                    </v-btn>
-
-                    <v-btn
-                        @click="promptAll"
-                        color="success"
-                        v-if="roundNumber < numRaces"
-                    >
-                        <v-icon>mdi-flag-plus</v-icon> Race
-                        {{ roundNumber + 1 }}
-                    </v-btn>
-                </div>
+            <div class="player-component-container">
+                <player-component
+                    v-for="player in players"
+                    :key="player.name"
+                    v-bind.sync="player"
+                ></player-component>
             </div>
-            <div style="height:60vh;">
-                <v-divider></v-divider>
-                <v-tabs v-model="activeTab">
-                    <v-tab :key="1" ripple>
-                        <v-icon>mdi-flag-checkered</v-icon>Races
-                    </v-tab>
-                    <v-tab :key="2" ripple>
-                        <v-icon>mdi-chart-timeline-variant</v-icon>
-                        {{ " Game" }}
-                    </v-tab>
-                    <v-tab :key="3" ripple>
-                        <v-icon>mdi-chart-timeline-variant</v-icon
-                        >{{ " All Time" }}
-                    </v-tab>
-                    <v-tab-item :key="1">
-                        <GameHistoryComponent
-                            v-if="game"
-                            :game="game"
-                            :players="players"
-                        />
-                    </v-tab-item>
-                    <v-tab-item :key="2">
-                        <GameGraphComponent
-                            v-if="game"
-                            :game="game"
-                            :players="players"
-                            :showHistory="false"
-                        />
-                    </v-tab-item>
-                    <v-tab-item :key="3">
-                        <GameGraphComponent
-                            v-if="game"
-                            :game="game"
-                            :players="players"
-                            :showHistory="true"
-                        />
-                    </v-tab-item>
-                </v-tabs>
+
+            <div class="button-panel">
+                <v-btn @click="undo" v-if="roundNumber > 0" class="undo">
+                    undo
+                </v-btn>
+
+                <v-btn
+                    @click="promptAll"
+                    color="success"
+                    v-if="roundNumber < numRaces"
+                >
+                    <v-icon>mdi-flag-plus</v-icon> Race
+                    {{ roundNumber + 1 }}
+                </v-btn>
             </div>
-            <!-- <keep-alive>
+        </div>
+        <div class="info-container">
+            <v-divider></v-divider>
+            <v-tabs v-model="activeTab">
+                <v-tab :key="1" ripple>
+                    <v-icon>mdi-flag-checkered</v-icon>Races
+                </v-tab>
+                <v-tab :key="2" ripple>
+                    <v-icon>mdi-chart-timeline-variant</v-icon>
+                    {{ " Game" }}
+                </v-tab>
+                <v-tab :key="3" ripple>
+                    <v-icon>mdi-chart-timeline-variant</v-icon>{{ " All Time" }}
+                </v-tab>
+                <v-tab-item :key="1">
+                    <GameHistoryComponent
+                        v-if="game"
+                        :game="game"
+                        :players="players"
+                    />
+                </v-tab-item>
+                <v-tab-item :key="2">
+                    <GameGraphComponent
+                        v-if="game"
+                        :game="game"
+                        :players="players"
+                        :showHistory="false"
+                    />
+                </v-tab-item>
+                <v-tab-item :key="3">
+                    <GameGraphComponent
+                        v-if="game"
+                        :game="game"
+                        :players="players"
+                        :showHistory="true"
+                    />
+                </v-tab-item>
+            </v-tabs>
+        </div>
+        <!-- <keep-alive>
                 <component
                     :is="
                         activeTab
@@ -78,8 +76,7 @@
                     :players="players"
                 />
             </keep-alive> -->
-            <!-- <br /> -->
-        </div>
+        <!-- <br /> -->
     </div>
 </template>
 
@@ -209,5 +206,13 @@ export default class KartGame extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+.players-container {
+    height: calc(40vh - 56px);
+    min-height: 250px;
+}
+.info-container {
+    max-height: calc(100vh - 250px - 56px);
+    height: calc(60vh - 56px);
 }
 </style>

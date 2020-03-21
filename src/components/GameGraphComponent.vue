@@ -3,6 +3,7 @@
         <point-place-graph-component
             :datasets="allDatasets"
             :players="players"
+            :numRaces="game.numRaces"
         />
     </div>
 </template>
@@ -64,7 +65,7 @@ export default class GameGraphComponent extends Vue {
     grid-template-columns: 1fr 1fr 4fr 1fr;
     column-gap: 5%;
     padding: 10px;
-    height: 50px;
+    height: 12vw;
     grid-template-areas: "undo newgame . next";
 }
 .undo {
