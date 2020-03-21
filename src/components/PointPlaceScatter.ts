@@ -1,6 +1,8 @@
 import { Scatter, mixins } from "vue-chartjs";
 import Vue from "vue";
 import { addNumberEnding } from "@/Util";
+import { IDataPoint } from "@/models/DataPoint";
+import { Course } from "@/models/Enums";
 const { reactiveProp } = mixins;
 const newLegendClickHandler = function(e: any, legendItem: any) {
     var index = legendItem.datasetIndex;

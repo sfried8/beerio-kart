@@ -10,6 +10,11 @@ export interface IGame {
     numRaces: number;
     history: number[][];
     courseHistory: number[];
+    characters?: number[];
+    vehicles?: number[];
+    cc?: number;
+    com?: number;
+    items?: number;
 }
 import Player from "../models/Player";
 import { KeypadPrompt, CoursePrompt } from "@/components/PromptManager";
@@ -87,6 +92,7 @@ export default class Game {
             const dataPoint: IDataPoint = {
                 x: p.totalPoints(),
                 y: addedPoints,
+                r: 3,
                 course,
                 gameId: this._id || "",
                 playerId: p._id || ""

@@ -21,7 +21,7 @@ import Game, { IGame } from "../models/Game";
 import PointPlaceScatter from "./PointPlaceScatter";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGameData } from "../DatabaseManager";
-import Course from "../models/Course";
+import { Course } from "../models/Enums";
 import { IDataPoint } from "../models/DataPoint";
 
 @Component({

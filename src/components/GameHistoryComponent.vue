@@ -17,7 +17,7 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IGame } from "@/models/Game";
 import { IPlayer } from "@/models/Player";
-import Course from "../models/Course";
+import { Course } from "../models/Enums";
 import * as Util from "@/Util";
 
 @Component({})

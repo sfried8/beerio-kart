@@ -16,7 +16,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import Course from "../models/Course";
+import { Course } from "../models/Enums";
 @Component
 export default class CoursePromptComponent extends Vue {
     @Prop() private courseHistory!: number[];

@@ -58,7 +58,7 @@ import { IDataPoint } from "../models/DataPoint";
 import { IPlayerData } from "@/DatabaseManager";
 import PointPlaceGraphComponent from "@/components/PointPlaceGraphComponent.vue";
 import * as Util from "@/Util";
-import Course from "../models/Course";
+import { Course } from "../models/Enums";
 @Component({
     components: { PointPlaceGraphComponent }
 })

@@ -6,4 +6,10 @@ export interface IDataPoint {
     date?: Date | string;
     x: number;
     y: number;
+    r: number;
+    vehicle?: number;
+    cc?: number;
+    com?: number;
+    items?: number;
+    character?: number;
 }
