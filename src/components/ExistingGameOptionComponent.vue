@@ -1,9 +1,11 @@
 <template>
-    <v-list-item @click="$emit('load')">
+    <v-list-item three-line @click="$emit('load')">
         <v-list-item-content>
             <v-list-item-title>{{ playerNameString }}</v-list-item-title>
+            <v-list-item-subtitle>{{ dateString }}</v-list-item-subtitle>
             <v-list-item-subtitle
-                >{{ dateString }} {{ progressString }}</v-list-item-subtitle
+                >{{ gameDetailsString }} -
+                {{ progressString }}</v-list-item-subtitle
             >
         </v-list-item-content>
 
@@ -20,6 +22,7 @@ import DatabaseManager from "../MongoDatabaseManager";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { IPlayer } from "../models/Player";
 import { IGame } from "../models/Game";
+import { CC, ComDifficulty, Items } from "../models/Enums";
 @Component
 export default class ExistingGameOptionComponent extends Vue {
     @Prop() public players!: IPlayer[];
@@ -35,6 +38,11 @@ export default class ExistingGameOptionComponent extends Vue {
             this.game.numRaces +
             " races"
         );
+    }
+    get gameDetailsString() {
+        return `${this.game.cc ? CC[this.game.cc].label + " - " : ""}${
+            this.game.items ? Items[this.game.items].label + " - " : ""
+        }${this.game.com ? ComDifficulty[this.game.com].label : ""}`;
     }
     get dateString() {
         if (this.game.date) {

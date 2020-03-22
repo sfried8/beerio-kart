@@ -134,7 +134,12 @@ export default class KartGame extends Vue {
             gameToLoad.game.history,
             gameToLoad.game.courseHistory,
             gameToLoad.game._id,
-            gameToLoad.datapoints
+            gameToLoad.datapoints,
+            gameToLoad.game.characters,
+            gameToLoad.game.vehicles,
+            gameToLoad.game.cc,
+            gameToLoad.game.com,
+            gameToLoad.game.items
         );
         if (!gameToLoad.game.history || gameToLoad.game.history.length === 0) {
             this.game.startGame();

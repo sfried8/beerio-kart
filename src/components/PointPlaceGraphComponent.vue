@@ -87,7 +87,9 @@ export default class PointPlaceGraphComponent extends Vue {
     }
     get pointDates() {
         return this.datasets.map(d =>
-            d.map(dp => (dp.date ? new Date(dp.date).toLocaleString() : "-"))
+            d.map(dp =>
+                dp.date ? new Date(dp.date).toLocaleDateString() : "-"
+            )
         );
     }
 }

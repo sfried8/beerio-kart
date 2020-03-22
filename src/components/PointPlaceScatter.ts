@@ -2,7 +2,7 @@ import { Bubble, mixins } from "vue-chartjs";
 import Vue from "vue";
 import { addNumberEnding } from "@/Util";
 import { IDataPoint } from "@/models/DataPoint";
-import { Course } from "@/models/Enums";
+import { Course, Character, CC, Vehicle } from "@/models/Enums";
 const { reactiveProp } = mixins;
 const newLegendClickHandler = function(e: any, legendItem: any) {
     var index = legendItem.datasetIndex;
@@ -89,15 +89,24 @@ export default Vue.extend({
                                 data.datasets[tooltipItem.datasetIndex].data[
                                     tooltipItem.index
                                 ];
-                            return `${
-                                Course[datapoint.course || 0].label
-                            } ${addNumberEnding(
-                                tooltipItem.yLabel
-                            )} place (${datapoint.r / 3 - 1} points) ${
+                            return [
                                 this.pointDates[tooltipItem.datasetIndex][
                                     tooltipItem.index
-                                ]
-                            }`;
+                                ],
+                                `    ${Course[datapoint.course || 0].label} ${
+                                    datapoint.cc
+                                        ? CC[datapoint.cc].label + " "
+                                        : ""
+                                } (${datapoint.r / 3 - 1} points)`,
+                                `    ${
+                                    Character[datapoint.character || 0].label
+                                } - ${Vehicle[datapoint.vehicle || 0].label}`
+                            ];
+                        },
+                        footer: (tooltipItem: any, data: any) => {
+                            return (
+                                "     " + addNumberEnding(tooltipItem[0].yLabel)
+                            );
                         }
                     }
                 }

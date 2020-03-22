@@ -23,6 +23,7 @@ import DatabaseManager from "../MongoDatabaseManager";
 import { IGameData } from "@/DatabaseManager";
 import { IDataPoint } from "./DataPoint";
 import { getColorByPlayerIndex } from "@/Util";
+import { Character } from "./Enums";
 export default class Game {
     public roundNumber: number = -1;
     public datasets: IDataPoint[][] = [];
@@ -34,7 +35,12 @@ export default class Game {
         public history: number[][] = [],
         public courseHistory: number[] = [],
         existingId?: string,
-        datapoints: IDataPoint[] = []
+        datapoints: IDataPoint[] = [],
+        public characters: number[] = [],
+        public vehicles: number[] = [],
+        public cc?: number,
+        public com?: number,
+        public items?: number
     ) {
         this.datasets = players.map(p => []);
         const playerIdToIndex: any = {};
@@ -95,7 +101,12 @@ export default class Game {
                 y: addedPoints,
                 course,
                 gameId: this._id || "",
-                playerId: p._id || ""
+                playerId: p._id || "",
+                cc: this.cc,
+                character: this.characters[i] || 0,
+                vehicle: this.vehicles[i] || 0,
+                com: this.com,
+                items: this.items
             };
 
             if (!isUndoing) {
@@ -167,7 +178,7 @@ export default class Game {
         for (let i = 0; i < this.players.length; i++) {
             const p = this.players[i];
             raceResults[i] = await KeypadPrompt(
-                p.name,
+                `${p.name} (${Character[this.characters[i]].label})`,
                 this.history.map(t => t[i])
             );
         }

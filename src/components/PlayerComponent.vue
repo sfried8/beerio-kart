@@ -73,6 +73,10 @@ export default {
     grid-area: name;
     font-size: 18px;
     text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .totalPoints {
     grid-area: total;
