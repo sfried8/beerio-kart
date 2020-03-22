@@ -1,37 +1,80 @@
 <template>
     <div class="pa-5">
-        <div style="max-width:900px;margin:auto;">
-            <vue-select
-                taggable
-                multiple
-                v-model="players"
-                :options="availablePlayers"
-                :create-option="name => ({ name })"
-                label="name"
-                @input="limitSelections"
-                placeholder="Add Player"
-            />
-        </div>
-        <div
-            v-for="(p, i) in players"
-            style="display:flex;flex-direction:row;"
-            :key="p._id"
+        <div class="subtitle-1">Players</div>
+        <v-dialog
+            v-model="newPlayerDialog"
+            style="max-width:900px;margin:auto;"
         >
-            {{ p.name }}
-            <vue-select
-                v-model="characters[i]"
-                :options="charactertypes"
-                style="width:40%"
-                placeholder="Character"
-            />
-            <vue-select
-                v-model="vehicles[i]"
-                :options="vehicletypes"
-                style="width:40%"
-                placeholder="Vehicle"
-            />
-        </div>
-        <div style="margin:3vh">
+            <v-card style="height:70vh;">
+                <v-card-subtitle>
+                    Add existing player
+                </v-card-subtitle>
+                <v-card-text>
+                    <vue-select
+                        :options="availablePlayers"
+                        label="name"
+                        @input="limitSelections"
+                        v-model="playerToAdd"
+                        placeholder="Add Player"
+                    />
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-subtitle>
+                    Create new player
+                </v-card-subtitle>
+                <v-card-text>
+                    <v-text-field
+                        v-model="pendingPlayerName"
+                        @submit="createPlayer"
+                        placeholder="Player Name"
+                    />
+                    <v-btn @click="createPlayer">
+                        Create Player
+                    </v-btn>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <v-simple-table style="width:90vw;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Character</th>
+                    <th>Vehicle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(p, i) in players" :key="p._id">
+                    <td>{{ p.name }}</td>
+                    <td>
+                        <!-- calculatePosition="calculatePosition" -->
+                        <vue-select
+                            append-to-body
+                            :clearable="false"
+                            v-model="characters[i]"
+                            :options="charactertypes"
+                            placeholder="Character"
+                        />
+                    </td>
+                    <td>
+                        <!-- calculatePosition="calculatePosition" -->
+                        <vue-select
+                            append-to-body
+                            :clearable="false"
+                            v-model="vehicles[i]"
+                            :options="vehicletypes"
+                            placeholder="Vehicle"
+                        />
+                    </td>
+                </tr>
+            </tbody>
+        </v-simple-table>
+        <v-btn color="blue" class="my-5" @click="newPlayerDialog = true">
+            Add Player
+        </v-btn>
+        <div class="my-12"></div>
+        <v-divider class="my-5"></v-divider>
+        <div class="subtitle-1">Config</div>
+        <div style="margin:3vh;margin-bottom:0;">
             <v-text-field
                 type="number"
                 label="Number of races"
@@ -47,26 +90,32 @@
                 >{{ n }}</v-btn
             >
         </div>
-<<<<<<< HEAD
-        <div style="max-width:900px;margin:auto;">
-            <vue-select v-model="cc" :options="ccs" placeholder="CC" />
-        </div>
+
         <div style="max-width:900px;margin:auto;">
             <vue-select
+                class="ma-3"
+                :clearable="false"
+                v-model="cc"
+                :options="ccs"
+                placeholder="CC"
+            />
+            <vue-select
+                class="ma-3"
+                :clearable="false"
                 v-model="comDifficulty"
                 :options="comDifficulties"
                 placeholder="COM Difficulty"
             />
-        </div>
-        <div style="max-width:900px;margin:auto;">
             <vue-select
+                class="ma-3"
+                :clearable="false"
                 v-model="items"
                 :options="itemtypes"
                 placeholder="Items"
             />
         </div>
-=======
->>>>>>> master
+        <div class="my-12"></div>
+        <v-divider class="my-5"></v-divider>
         <div
             style="width:100%;display:flex;justify-content:center;align-items:center;"
         >
@@ -90,11 +139,12 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component({})
 export default class NewGame extends Vue {
-    racePresets: number[] = [4, 6, 8, 12, 16, 24, 32, 48];
+    newPlayerDialog: boolean = false;
+    pendingPlayerName: string = "";
     players: IPlayer[] = [];
     vehicles: { id: number; label: string }[] = [];
     characters: { id: number; label: string }[] = [];
-
+    playerToAdd: IPlayer | null = null;
     cc: { id: number; label: string } = CC[3];
     items: { id: number; label: string } = Items[1];
     comDifficulty: { id: number; label: string } = ComDifficulty[3];
@@ -103,6 +153,12 @@ export default class NewGame extends Vue {
     async mounted() {
         await DatabaseManager.init();
         this.playersFromDatabase = await DatabaseManager.getPlayers();
+        while (this.characters.length < 4) {
+            this.characters.push(Character[0]);
+        }
+        while (this.vehicles.length < 4) {
+            this.vehicles.push(Vehicle[0]);
+        }
     }
     async startGame() {
         for (const player of this.players) {
@@ -147,11 +203,24 @@ export default class NewGame extends Vue {
     get racePresets() {
         return [4, 6, 8, 12, 16, 24, 32, 48];
     }
-    limitSelections(e: IPlayer[]) {
-        if (e.length > 4) {
-            e.pop();
+    limitSelections(e: IPlayer) {
+        if (e) {
+            this.players.push(e);
+            this.newPlayerDialog = false;
+            this.pendingPlayerName = "";
+            this.playerToAdd = null;
         }
     }
+    createPlayer() {
+        if (this.pendingPlayerName) {
+            this.players.push({ name: this.pendingPlayerName });
+            this.pendingPlayerName = "";
+            this.newPlayerDialog = false;
+        }
+    }
+    // calculatePosition (dropdownList, component, {width}) {
+
+    // }
 }
 </script>
 

@@ -101,6 +101,9 @@ export default Vue.extend({
 });
 </script>
 <style lang="less">
+body {
+    font-family: "Roboto";
+}
 @font-face {
     font-family: "PipeDream";
     src: url("./assets/PipeDream.ttf");
