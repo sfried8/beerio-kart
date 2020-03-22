@@ -5,8 +5,8 @@ import DatabaseManager, {
 import { IDataPoint } from "./models/DataPoint";
 import { IGame } from "./models/Game";
 
-// const url = "https://beerio-kart-server.herokuapp.com";
-const url = "http://localhost:4000";
+const url = "https://beerio-kart-server.herokuapp.com";
+// const url = "http://localhost:4000";
 const MongoDatabaseManager: IDatabaseManager = {
     initialized: false,
     async init() {
