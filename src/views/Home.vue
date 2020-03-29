@@ -4,7 +4,7 @@
             Welcome to Beerio Kart!
         </div>
 
-        <img src="/drunk-mario.png" />
+        <v-img :height="250" src="/drunk-mario.png" />
         As the name suggests, Beerio Kart is a game to add some drinking to
         Mario Kart. By entering in your results from a game of Mario Kart, the
         app will apply some rules (outlined below) and each player will earn

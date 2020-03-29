@@ -59,7 +59,7 @@ export default class PlayerPage extends Vue {
                     );
 
                     const showWeight = this.weightSelections.includes(
-                        ["--", "Light", "Medium", "Heavy"][
+                        ["Unknown", "Light", "Medium", "Heavy"][
                             Character[dp.character || 0].weight
                         ]
                     );
@@ -231,7 +231,7 @@ export default class PlayerPage extends Vue {
             )
         )
             .sort((a, b) => a - b)
-            .map(cid => ["--", "Light", "Medium", "Heavy"][cid]);
+            .map(cid => ["Unknown", "Light", "Medium", "Heavy"][cid]);
     }
     get vehicleOptions() {
         return this.optionsGetter(dp => dp.vehicle, Vehicle);

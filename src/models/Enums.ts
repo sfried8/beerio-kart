@@ -1,5 +1,5 @@
 export const Course = [
-    { id: 0, label: "--" },
+    { id: 0, label: "Unknown" },
     { id: 1, label: "Mario Kart Stadium" },
     { id: 2, label: "Water Park" },
     { id: 3, label: "Sweet Sweet Canyon" },
@@ -51,7 +51,7 @@ export const Course = [
 ];
 
 export const Character = [
-    { id: 0, label: "--", weight: 0 },
+    { id: 0, label: "Unknown", weight: 0 },
 
     {
         id: 1,
@@ -245,7 +245,7 @@ export const Character = [
 ];
 
 export const CC = [
-    { id: 0, label: "--" },
+    { id: 0, label: "Unknown" },
 
     { id: 1, label: "50cc" },
     { id: 2, label: "100cc" },
@@ -254,7 +254,7 @@ export const CC = [
 ];
 
 export const ComDifficulty = [
-    { id: 0, label: "--" },
+    { id: 0, label: "Unknown" },
 
     { id: 1, label: "No COM" },
     { id: 2, label: "Easy COM" },
@@ -263,7 +263,7 @@ export const ComDifficulty = [
 ];
 
 export const Items = [
-    { id: 0, label: "--" },
+    { id: 0, label: "Unknown" },
 
     { id: 1, label: "Normal Items" },
     { id: 2, label: "Shells Only" },
@@ -276,7 +276,7 @@ export const Items = [
 ];
 
 export const Vehicle = [
-    { id: 0, label: "--" },
+    { id: 0, label: "Unknown" },
 
     { id: 1, label: "Kart" },
     { id: 2, label: "Bike" },

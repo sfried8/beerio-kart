@@ -2,7 +2,7 @@
     <v-app>
         <v-app-bar fixed app color="primary" dark>
             <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-            <v-toolbar-title class="pipe-dream"
+            <v-toolbar-title class="pipe-dream-title" @click="$router.push('/')"
                 ><span class="pipe-dream-blue">B</span
                 ><span class="pipe-dream-yellow">e</span
                 ><span class="pipe-dream-red">e</span
@@ -108,7 +108,9 @@ body {
     font-family: "PipeDream";
     src: url("./assets/PipeDream.ttf");
 }
-.pipe-dream {
+.pipe-dream-title {
+    cursor: pointer;
+    user-select: none;
     font-family: "PipeDream";
     font-size: 2rem !important;
     -webkit-text-stroke: 1px black;
