@@ -12,7 +12,8 @@ import {
     IDataValue,
     CC,
     Items,
-    ComDifficulty
+    ComDifficulty,
+    Weight
 } from "../models/Enums";
 @Component({
     components: { PointPlaceGraphComponent }
@@ -27,13 +28,16 @@ export default class PlayerPage extends Vue {
         this.player =
             (await DatabaseManager.getPlayerById(this.$route.params.id)) ||
             null;
+        this.resetFilters();
+        this.playersFromDatabase = await DatabaseManager.getPlayers();
+    }
+    resetFilters() {
         this.itemsSelections = [...this.itemsOptions];
         this.courseSelections = [...this.courseOptions];
         this.ccSelections = [...this.ccOptions];
         this.vehicleSelections = [...this.vehicleOptions];
         this.difficultySelections = [...this.difficultyOptions];
         this.weightSelections = [...this.weightOptions];
-        this.playersFromDatabase = await DatabaseManager.getPlayers();
     }
     get datapoints() {
         if (this.player && this.player.datapoints) {
@@ -58,10 +62,10 @@ export default class PlayerPage extends Vue {
                         c => (c.id || 0) === (dp.com || 0)
                     );
 
-                    const showWeight = this.weightSelections.includes(
-                        ["Unknown", "Light", "Medium", "Heavy"][
-                            Character[dp.character || 0].weight
-                        ]
+                    const showWeight = this.weightSelections.some(
+                        c =>
+                            (c.id || 0) ===
+                            (Character[dp.character || 0].weight || 0)
                     );
                     return (
                         showCourse &&
@@ -85,6 +89,68 @@ export default class PlayerPage extends Vue {
                     this.$set(this.otherPlayerData, p._id, null);
                     DatabaseManager.getPlayerById(p._id).then(data => {
                         if (data && p._id) {
+                            if (data.datapoints) {
+                                data.datapoints.forEach(dp => {
+                                    if (
+                                        !this.courseOptions.some(
+                                            c => c.id === dp.course
+                                        )
+                                    ) {
+                                        this.courseSelections.push(
+                                            Course[dp.course || 0]
+                                        );
+                                    }
+                                    if (
+                                        !this.ccOptions.some(
+                                            c => c.id === dp.cc
+                                        )
+                                    ) {
+                                        this.ccSelections.push(CC[dp.cc || 0]);
+                                    }
+                                    if (
+                                        !this.vehicleOptions.some(
+                                            c => c.id === dp.vehicle
+                                        )
+                                    ) {
+                                        this.vehicleSelections.push(
+                                            Vehicle[dp.vehicle || 0]
+                                        );
+                                    }
+                                    if (
+                                        !this.itemsOptions.some(
+                                            c => c.id === dp.items
+                                        )
+                                    ) {
+                                        this.itemsSelections.push(
+                                            Items[dp.items || 0]
+                                        );
+                                    }
+                                    if (
+                                        !this.difficultyOptions.some(
+                                            c => c.id === dp.com
+                                        )
+                                    ) {
+                                        this.difficultySelections.push(
+                                            ComDifficulty[dp.com || 0]
+                                        );
+                                    }
+                                    if (
+                                        !this.weightOptions.some(
+                                            c =>
+                                                c.id ===
+                                                Character[dp.character || 0]
+                                                    .weight
+                                        )
+                                    ) {
+                                        this.weightSelections.push(
+                                            Weight[
+                                                Character[dp.character || 0]
+                                                    .weight
+                                            ]
+                                        );
+                                    }
+                                });
+                            }
                             this.$set(this.otherPlayerData, p._id, data);
                         }
                     });
@@ -211,7 +277,11 @@ export default class PlayerPage extends Vue {
         if (!this.player || !this.player.datapoints) {
             return [];
         }
-        return Util.uniquify(this.player.datapoints.map(getFieldFunc))
+        const datapoints = [...this.player.datapoints];
+        this.otherPlayerDatapoints.forEach(dps => {
+            datapoints.push(...dps);
+        });
+        return Util.uniquify(datapoints.map(getFieldFunc))
             .sort((a, b) => (a || 0) - (b || 0))
             .map(x => dataValues[x || 0]);
     }
@@ -222,16 +292,10 @@ export default class PlayerPage extends Vue {
         return this.optionsGetter(dp => dp.cc, CC);
     }
     get weightOptions() {
-        if (!this.player || !this.player.datapoints) {
-            return [];
-        }
-        return Util.uniquify(
-            this.player.datapoints.map(
-                dp => Character[dp.character || 0].weight
-            )
-        )
-            .sort((a, b) => a - b)
-            .map(cid => ["Unknown", "Light", "Medium", "Heavy"][cid]);
+        return this.optionsGetter(
+            dp => Character[dp.character || 0].weight,
+            Weight
+        );
     }
     get vehicleOptions() {
         return this.optionsGetter(dp => dp.vehicle, Vehicle);
@@ -245,7 +309,7 @@ export default class PlayerPage extends Vue {
 
     courseSelections: IDataValue[] = [];
     ccSelections: IDataValue[] = [];
-    weightSelections: string[] = [];
+    weightSelections: IDataValue[] = [];
     vehicleSelections: IDataValue[] = [];
     itemsSelections: IDataValue[] = [];
     difficultySelections: IDataValue[] = [];

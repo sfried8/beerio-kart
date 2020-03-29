@@ -283,6 +283,12 @@ export const Vehicle = [
     { id: 3, label: "Trike" }
 ];
 
+export const Weight = [
+    { id: 0, label: "Unknown" },
+    { id: 1, label: "Light" },
+    { id: 2, label: "Medium" },
+    { id: 3, label: "Heavy" }
+];
 export interface IDataValue {
     id: number;
     label: string;

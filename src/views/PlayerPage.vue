@@ -29,126 +29,156 @@
                 </point-place-graph-component>
             </div>
             <div class="graph-panel">
-                <v-expansion-panels accordion class="filter-panel">
-                    <span>Filter</span>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            Courses
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-row>
-                                <v-btn
-                                    text
-                                    small
-                                    @click="() => selectAll(courseOptions)"
-                                    >Show all</v-btn
-                                >
-                                <v-btn
-                                    text
-                                    small
-                                    @click="() => deselectAll(courseSelections)"
-                                    >Hide all</v-btn
-                                >
-                            </v-row>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="courseSelections"
-                                v-for="c in courseOptions"
-                                :key="c.id"
-                                :label="c.label"
-                                :value="c"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            Weight Class
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="weightSelections"
-                                v-for="w in weightOptions"
-                                :key="w"
-                                :label="w"
-                                :value="w"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            Vehicle Type
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="vehicleSelections"
-                                v-for="v in vehicleOptions"
-                                :key="v.id"
-                                :label="v.label"
-                                :value="v"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            CC
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="ccSelections"
-                                v-for="c in ccOptions"
-                                :key="c.id"
-                                :label="c.label"
-                                :value="c"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            COM Difficulty
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="difficultySelections"
-                                v-for="c in difficultyOptions"
-                                :key="c.id"
-                                :label="c.label"
-                                :value="c"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            Items
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-switch
-                                dense
-                                style="margin-right:3vw;margin-top:0;"
-                                v-model="itemsSelections"
-                                v-for="i in itemsOptions"
-                                :key="i.id"
-                                :label="i.label"
-                                :value="i"
-                            />
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                </v-expansion-panels>
-                <!-- <vue-select
-                    multiple
-                    v-model="otherPlayers"
-                    :options="playersFromDatabase"
-                    label="name"
-                    placeholder="Compare Player"
-                /> -->
+                <v-card>
+                    <v-card-text>
+                        <v-subheader>
+                            Compare
+                        </v-subheader>
+                        <vue-select
+                            multiple
+                            v-model="otherPlayers"
+                            :options="playersFromDatabase"
+                            label="name"
+                            placeholder="Compare Player"
+                        />
+                        <v-divider class="my-8"></v-divider>
+
+                        <v-subheader>
+                            <v-btn
+                                text
+                                small
+                                absolute
+                                right
+                                @click="resetFilters"
+                                >Clear all</v-btn
+                            >
+                            Filter
+                        </v-subheader>
+                        <v-expansion-panels
+                            accordion
+                            :elevation="0"
+                            class="filter-panel elevation-0"
+                        >
+                            <v-expansion-panel :elevation="0">
+                                <v-expansion-panel-header>
+                                    Courses
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-row>
+                                        <v-btn
+                                            text
+                                            small
+                                            @click="
+                                                () => selectAll(courseOptions)
+                                            "
+                                            >Show all</v-btn
+                                        >
+                                        <v-btn
+                                            text
+                                            small
+                                            @click="
+                                                () =>
+                                                    deselectAll(
+                                                        courseSelections
+                                                    )
+                                            "
+                                            >Hide all</v-btn
+                                        >
+                                    </v-row>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="courseSelections"
+                                        v-for="c in courseOptions"
+                                        :key="c.id"
+                                        :label="c.label"
+                                        :value="c"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>
+                                    Weight Class
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="weightSelections"
+                                        v-for="w in weightOptions"
+                                        :key="w.id"
+                                        :label="w.label"
+                                        :value="w"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>
+                                    Vehicle Type
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="vehicleSelections"
+                                        v-for="v in vehicleOptions"
+                                        :key="v.id"
+                                        :label="v.label"
+                                        :value="v"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>
+                                    CC
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="ccSelections"
+                                        v-for="c in ccOptions"
+                                        :key="c.id"
+                                        :label="c.label"
+                                        :value="c"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>
+                                    COM Difficulty
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="difficultySelections"
+                                        v-for="c in difficultyOptions"
+                                        :key="c.id"
+                                        :label="c.label"
+                                        :value="c"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-header>
+                                    Items
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-switch
+                                        dense
+                                        style="margin-right:3vw;margin-top:0;"
+                                        v-model="itemsSelections"
+                                        v-for="i in itemsOptions"
+                                        :key="i.id"
+                                        :label="i.label"
+                                        :value="i"
+                                    />
+                                </v-expansion-panel-content>
+                            </v-expansion-panel>
+                        </v-expansion-panels>
+                    </v-card-text>
+                </v-card>
             </div>
         </div>
         <v-divider class="d-lg-none my-4"></v-divider>
@@ -173,10 +203,7 @@
     width: 90vw;
     margin: 2vh auto;
 }
-.filter-panel {
-    position: absolute;
-    width: 15%;
-}
+
 .stats-panel {
     left: 25%;
     width: 75%;
@@ -203,10 +230,10 @@
         left: 5%;
         width: 90%;
     }
-    .filter-panel {
-        position: initial;
-        width: 100%;
-        margin: auto;
-    }
+    // .filter-panel {
+    //     position: initial;
+    //     width: 100%;
+    //     margin: auto;
+    // }
 }
 </style>
