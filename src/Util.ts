@@ -73,6 +73,9 @@ export function mode<T>(arr: T[]): { value?: T; frequency: number } {
     let greatestFreq = 0;
     let mode;
     arr.forEach(value => {
+        if (!value) {
+            return;
+        }
         numMapping[value] = (numMapping[value] || 0) + 1;
 
         if (greatestFreq < numMapping[value]) {

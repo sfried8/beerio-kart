@@ -1,28 +1,25 @@
 <template>
     <div class="ma-5">
-        <h2 style="text-align:center">
+        <h2 class="text-center">
             {{ name }}
         </h2>
-        <div
-            style="display:inline-block;width:40%;text-align:right;padding-right:8px;"
-        >
+
+        <!-- <div>
             <div>Total games:</div>
             <div>Total races:</div>
             <div>Favorite course:</div>
             <div>Best course:</div>
             <div>Worst course:</div>
         </div>
-        <div style="display:inline-block;width:60%;padding-left:8px;">
-            <div>{{ totalGames }}</div>
-            <div>{{ totalRaces }}</div>
-            <div
-                style="width:100%;overflow:hidden;white-space:nowrap; text-overflow:ellipsis"
-            >
-                {{ favoriteCourse }}
-            </div>
-            <div>{{ bestCourse }}</div>
-            <div>{{ worstCourse }}</div>
+        <div>{{ totalGames }}</div>
+        <div>{{ totalRaces }}</div>
+        <div
+            style="width:100%;overflow:hidden;white-space:nowrap; text-overflow:ellipsis"
+        >
+            {{ favoriteCourse }}
         </div>
+        <div>{{ bestCourse }}</div>
+        <div>{{ worstCourse }}</div> -->
         <div class="graph-container">
             <div class="graph-inner">
                 <point-place-graph-component
@@ -32,170 +29,159 @@
                 </point-place-graph-component>
             </div>
             <div class="graph-panel">
-                <vue-select
-                    multiple
-                    placeholder="Filter courses"
-                    :options="filterOptions"
-                    v-model="filteredCourses"
-                />
-                <vue-select
+                <v-expansion-panels accordion class="filter-panel">
+                    <span>Filter</span>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            Courses
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-row>
+                                <v-btn
+                                    text
+                                    small
+                                    @click="() => selectAll(courseOptions)"
+                                    >Show all</v-btn
+                                >
+                                <v-btn
+                                    text
+                                    small
+                                    @click="() => deselectAll(courseSelections)"
+                                    >Hide all</v-btn
+                                >
+                            </v-row>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="courseSelections"
+                                v-for="c in courseOptions"
+                                :key="c.id"
+                                :label="c.label"
+                                :value="c"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            Weight Class
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="weightSelections"
+                                v-for="w in weightOptions"
+                                :key="w"
+                                :label="w"
+                                :value="w"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            Vehicle Type
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="vehicleSelections"
+                                v-for="v in vehicleOptions"
+                                :key="v.id"
+                                :label="v.label"
+                                :value="v"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            CC
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="ccSelections"
+                                v-for="c in ccOptions"
+                                :key="c.id"
+                                :label="c.label"
+                                :value="c"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            COM Difficulty
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="difficultySelections"
+                                v-for="c in difficultyOptions"
+                                :key="c.id"
+                                :label="c.label"
+                                :value="c"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>
+                            Items
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-switch
+                                dense
+                                style="margin-right:3vw;margin-top:0;"
+                                v-model="itemsSelections"
+                                v-for="i in itemsOptions"
+                                :key="i.id"
+                                :label="i.label"
+                                :value="i"
+                            />
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+                <!-- <vue-select
                     multiple
                     v-model="otherPlayers"
                     :options="playersFromDatabase"
                     label="name"
                     placeholder="Compare Player"
-                />
+                /> -->
             </div>
         </div>
+        <v-divider class="d-lg-none my-4"></v-divider>
+        <v-simple-table class="stats-panel">
+            <tbody>
+                <tr v-for="stat in stats" :key="stat.label">
+                    <td>{{ stat.label }}</td>
+                    <td>{{ stat.value }}</td>
+                </tr>
+            </tbody>
+        </v-simple-table>
     </div>
 </template>
 
-<script lang="ts">
-import DatabaseManager from "../MongoDatabaseManager";
-import Player, { IPlayer } from "../models/Player";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { IDataPoint } from "../models/DataPoint";
-import { IPlayerData } from "@/DatabaseManager";
-import PointPlaceGraphComponent from "@/components/PointPlaceGraphComponent.vue";
-import * as Util from "@/Util";
-import { Course } from "../models/Enums";
-@Component({
-    components: { PointPlaceGraphComponent }
-})
-export default class PlayerPage extends Vue {
-    filteredCourses: { id: number; label: string }[] = [];
-    player: IPlayerData | null = null;
-    otherPlayers: IPlayer[] = [];
-    playersFromDatabase: IPlayer[] = [];
-    otherPlayerData: Record<string, IPlayerData | null> = {};
-    async mounted() {
-        await DatabaseManager.init();
-        this.player =
-            (await DatabaseManager.getPlayerById(this.$route.params.id)) ||
-            null;
-        this.playersFromDatabase = await DatabaseManager.getPlayers();
-    }
-    get datapoints() {
-        if (this.player && this.player.datapoints) {
-            const allDatapoints = [
-                this.player.datapoints,
-                ...this.otherPlayerDatapoints
-            ].map(dps =>
-                dps.filter(
-                    dp => !this.filteredCourses.some(c => c.id === dp.course)
-                )
-            );
-            return allDatapoints;
-        }
-        return [];
-    }
-    @Watch("otherPlayers")
-    onOtherPlayersChanged(val: IPlayer[]) {
-        val.forEach(p => {
-            if (p._id) {
-                if (this.otherPlayerData[p._id] === undefined) {
-                    this.$set(this.otherPlayerData, p._id, null);
-                    DatabaseManager.getPlayerById(p._id).then(data => {
-                        if (data && p._id) {
-                            this.$set(this.otherPlayerData, p._id, data);
-                        }
-                    });
-                }
-            }
-        });
-    }
-    get otherPlayerDatapoints() {
-        const playerData: IDataPoint[][] = [];
-        this.otherPlayers.forEach(other => {
-            if (other._id) {
-                const otherData = this.otherPlayerData[other._id];
-                if (otherData && otherData.datapoints) {
-                    playerData.push(otherData.datapoints);
-                }
-            }
-        });
-        return playerData;
-    }
-    get playerArray() {
-        return this.player ? [this.player.player, ...this.otherPlayers] : [];
-    }
-    get name() {
-        if (this.player) {
-            return this.player.player.name;
-        }
-        return "";
-    }
-    get totalGames() {
-        if (!this.player) {
-            return 0;
-        }
-        return this.player.games.length;
-    }
-    get totalRaces() {
-        if (!this.player) {
-            return 0;
-        }
-        return this.player.games.reduce(
-            (acc, cur) => acc + cur.history.length,
-            0
-        );
-    }
-    get games() {
-        if (this.player) {
-            return this.player.games.map(g => g._id).join(", ");
-        }
-        return "";
-    }
-    get favoriteCourse() {
-        if (!this.player) {
-            return "";
-        }
-        const course = Util.mode(
-            (this.player.datapoints || []).map(d => d.course)
-        );
-        if (!course.value) {
-            return "-";
-        }
-        return `${Course[course.value].label} (${course.frequency} plays)`;
-    }
-    get bestCourse() {
-        if (!this.player || !this.player.datapoints) {
-            return "";
-        }
-        const course = Util.bestAndWorstCourse(this.player.datapoints).best;
-        if (course) {
-            return Course[course].label;
-        }
-        return "-";
-    }
-    get worstCourse() {
-        if (!this.player || !this.player.datapoints) {
-            return "";
-        }
-        const course = Util.bestAndWorstCourse(this.player.datapoints).worst;
-        if (course) {
-            return Course[course].label;
-        }
-        return "-";
-    }
-    get filterOptions() {
-        if (!this.player || !this.player.datapoints) {
-            return [];
-        }
-        return Util.uniquify(
-            this.player.datapoints.map(dp => dp.course || 0)
-        ).map(cid => Course[cid]);
-    }
-}
-</script>
+<script src="./PlayerPageScript.ts" />
 <style lang="less">
 .graph-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     flex-wrap: wrap;
     justify-content: space-evenly;
     width: 90vw;
     margin: 2vh auto;
+}
+.filter-panel {
+    position: absolute;
+    width: 15%;
+}
+.stats-panel {
+    left: 25%;
+    width: 75%;
+    max-width: 1000px;
+    position: absolute;
 }
 .graph-inner {
     width: 80%;
@@ -204,11 +190,23 @@ export default class PlayerPage extends Vue {
     width: 18%;
 }
 @media screen and (max-width: 1000px) {
+    .graph-container {
+        flex-direction: row;
+    }
     .graph-inner {
         width: 100%;
     }
     .graph-panel {
-        width: 75%;
+        width: 100%;
+    }
+    .stats-panel {
+        left: 5%;
+        width: 90%;
+    }
+    .filter-panel {
+        position: initial;
+        width: 100%;
+        margin: auto;
     }
 }
 </style>

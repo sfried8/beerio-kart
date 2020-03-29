@@ -4,7 +4,7 @@ import Home from "./views/Home.vue";
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
     routes: [
         {
             path: "/",
@@ -18,7 +18,8 @@ export default new Router({
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
             component: () =>
-                import(/* webpackChunkName: "about" */ "./views/LoadGame.vue")
+                import(/* webpackChunkName: "about" */ "./views/LoadGame.vue"),
+            meta: { title: "Load Game" }
         },
         {
             path: "/game/:gameid",
@@ -34,7 +35,8 @@ export default new Router({
         {
             path: "/newgame",
             name: "newgame",
-            component: () => import("./views/NewGame.vue")
+            component: () => import("./views/NewGame.vue"),
+            meta: { title: "New Game" }
         },
         {
             path: "/player/:id",
@@ -44,7 +46,15 @@ export default new Router({
         {
             path: "/searchplayer",
             name: "searchplayer",
-            component: () => import("./views/SearchPlayer.vue")
+            component: () => import("./views/SearchPlayer.vue"),
+            meta: { title: "Search Players" }
         }
     ]
 });
+router.afterEach((to, from) => {
+    Vue.nextTick(() => {
+        document.title =
+            (to.meta.title ? to.meta.title + " • " : "") + "Beerio Kart";
+    });
+});
+export default router;

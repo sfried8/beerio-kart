@@ -105,7 +105,8 @@ export default Vue.extend({
                         },
                         footer: (tooltipItem: any, data: any) => {
                             return (
-                                "     " + addNumberEnding(tooltipItem[0].yLabel)
+                                "     " +
+                                addNumberEnding(tooltipItem[0]?.yLabel ?? "")
                             );
                         }
                     }
